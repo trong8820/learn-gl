@@ -1,10 +1,6 @@
-﻿#include <iostream>
+#include "entry.h"
 
-#include <glad/glad.h>
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
-
-auto main() -> int
+auto run() -> int
 {
 	if (glfwInit() == GLFW_FALSE) return EXIT_FAILURE;
 
@@ -20,9 +16,9 @@ auto main() -> int
 #if defined(_DEBUG) || defined(DEBUG) || !defined(NDEBUG)
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 	glfwSetErrorCallback([](int error, const char* description)
-	{
-		std::cout << "GLFW Error: " << error << " - "<< description << "\n";
-	});
+		{
+			std::cout << "GLFW Error: " << error << " - " << description << "\n";
+		});
 #endif
 
 	auto pWindow = glfwCreateWindow(800, 600, "Example 01", nullptr, nullptr);
@@ -38,9 +34,14 @@ auto main() -> int
 	//float yscale{ 1.0f };
 	//glfwGetWindowContentScale(m_pWindow, &xscale, &yscale);
 
+	init();
+
 	glfwSwapInterval(1);
 	while (glfwWindowShouldClose(pWindow) == GLFW_FALSE)
 	{
+		update();
+		draw();
+
 		glfwSwapBuffers(pWindow);
 		glfwPollEvents();
 	}

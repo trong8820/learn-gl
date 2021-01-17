@@ -61,24 +61,32 @@ link_directories(
 	${CMAKE_SOURCE_DIR}/3rdparty/glfw-3.3.2/lib/${PLATFORM_FOLDER}
 )
 
-
-set(SOURCE_FILES
-	${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
-)
-
-
-add_executable(${PROJECT_NAME} ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES})
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/include)
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw3)
+# 3rdparty link
+link_libraries(glfw3)
 
 if (APPLE)
-	target_link_libraries(${PROJECT_NAME} PRIVATE
+	link_libraries(
 		"-framework AppKit"
 		"-framework IOKit"
 		"-framework CoreGraphics"
 	)
 endif()
 
+# Projects
+include_directories(
+	 ${CMAKE_SOURCE_DIR}/include
+)
+
+set(SOURCE_FILES
+	${CMAKE_CURRENT_SOURCE_DIR}/src/entry.cpp
+)
+
+# List projects
+add_executable(${PROJECT_NAME}_01 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_01.cpp)
+add_executable(${PROJECT_NAME}_02 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_02.cpp)
+
+
+# Data
 if (EXISTS ${CMAKE_SOURCE_DIR}/data)
 add_custom_command(TARGET  ${PROJECT_NAME} PRE_BUILD
 				   COMMAND ${CMAKE_COMMAND} -E copy_directory
