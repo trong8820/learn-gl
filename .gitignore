@@ -1042,3 +1042,4 @@ dkms.conf
 # Project
 3rdparty
 CMakeSettings.json
+.vscode
