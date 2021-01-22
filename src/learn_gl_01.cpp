@@ -145,9 +145,15 @@ auto init() -> bool
 	glGenTextures(1, &gTexture);
 	glBindTexture(GL_TEXTURE_2D, gTexture);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 2, 2, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
+	//GLsync fence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+	//glWaitSync(fence, 0, GL_TIMEOUT_IGNORED);
+	//glDeleteSync(fence);
+		
 	return true;
 }
 
@@ -160,8 +166,8 @@ auto draw() -> void
 {
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	glClear(GL_COLOR_BUFFER_BIT);
 	glClearColor(0.0f, 0.2f, 0.2f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
 
 	glUseProgram(gProgram);
 	glBindVertexArray(gVAO);
