@@ -36,15 +36,15 @@ auto run() -> int
 
 	// Version
 	const GLubyte *name     =  glGetString(GL_VENDOR);
-    const GLubyte *renderer =  glGetString(GL_RENDERER);
-    const GLubyte *version  =  glGetString(GL_VERSION);
+	const GLubyte *renderer =  glGetString(GL_RENDERER);
+	const GLubyte *version  =  glGetString(GL_VERSION);
 	std::cout << "Vendor: " << name << std::endl;
 	std::cout << "Renderer: " << renderer << std::endl;
 	std::cout << "Version: " << version << std::endl;
 
 	// Check exts
-	GLint numExts; 
-	glGetIntegerv(GL_NUM_EXTENSIONS, &numExts); 
+	GLint numExts;
+	glGetIntegerv(GL_NUM_EXTENSIONS, &numExts);
 	for (GLint i = 0; i < numExts; i++)
 	{
 		const char* extension = (const char*)glGetStringi(GL_EXTENSIONS, i);

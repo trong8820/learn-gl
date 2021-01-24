@@ -5,7 +5,7 @@ float vertices[] = {
 	0.5f,  0.5f, 	1.0f, 0.0f, 0.0f, 1.0f,  // top right
 	0.5f, -0.5f, 	0.0f, 1.0f, 0.0f, 1.0f,  // bottom right
 	-0.5f, -0.5f, 	0.0f, 0.0f, 1.0f, 1.0f,  // bottom left
-	-0.5f,  0.5f, 	1.0f, 1.0f, 0.0f, 1.0f,   // top left 
+	-0.5f,  0.5f, 	1.0f, 1.0f, 0.0f, 1.0f,   // top left
 };
 
 float uvs[] = {
@@ -39,7 +39,7 @@ void main()
 {
 	vColor = aColor;
 	vTexCoord = aTexCoord;
-   	gl_Position = vec4(aPos.x, aPos.y, 0.0, 1.0);
+	gl_Position = vec4(aPos.x, aPos.y, 0.0, 1.0);
 }
 )";
 
@@ -82,11 +82,12 @@ auto init() -> bool
 	glDeleteShader(fragmentShader);
 
 	glGenVertexArrays(1, &gVAO);
+	std::cout << "VAO: " << gVAO << std::endl;
 	glBindVertexArray(gVAO);
 		GLuint VBO1;
 		glGenBuffers(1, &VBO1);
 		std::cout << "VBO1: " << VBO1 << std::endl;
-		glBindBuffer(GL_ARRAY_BUFFER, VBO1); 
+		glBindBuffer(GL_ARRAY_BUFFER, VBO1);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 				glEnableVertexAttribArray(0);
 				glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
@@ -97,7 +98,7 @@ auto init() -> bool
 		GLuint VBO2;
 		glGenBuffers(1, &VBO2);
 		std::cout << "VBO2: " << VBO2 << std::endl;
-		glBindBuffer(GL_ARRAY_BUFFER, VBO2); 
+		glBindBuffer(GL_ARRAY_BUFFER, VBO2);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(uvs), uvs, GL_STATIC_DRAW);
 				glEnableVertexAttribArray(2);
 				glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (GLvoid*)0);
@@ -114,7 +115,7 @@ auto init() -> bool
 	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &maxVertexAttribs);
 	std::cout << "Max vertex Attribs: " << maxVertexAttribs << std::endl;
 	for (GLuint i = 0; i < maxVertexAttribs; i++)
-	{	
+	{
 		GLuint vertexAttribEnabled;
 		glGetVertexAttribIuiv(i, GL_VERTEX_ATTRIB_ARRAY_ENABLED, &vertexAttribEnabled);
 		if (vertexAttribEnabled > 0)
@@ -137,8 +138,8 @@ auto init() -> bool
 
 	/*GLint ptformat, tformat, ttype;
 	glGetInternalformativ(GL_TEXTURE_2D, GL_RGBA8, GL_INTERNALFORMAT_PREFERRED, 1, &ptformat);
-    glGetInternalformativ(GL_TEXTURE_2D, GL_RGBA8, GL_TEXTURE_IMAGE_FORMAT, 1, &tformat);
-    glGetInternalformativ(GL_TEXTURE_2D, GL_RGBA8, GL_TEXTURE_IMAGE_TYPE, 1, &ttype);
+	glGetInternalformativ(GL_TEXTURE_2D, GL_RGBA8, GL_TEXTURE_IMAGE_FORMAT, 1, &tformat);
+	glGetInternalformativ(GL_TEXTURE_2D, GL_RGBA8, GL_TEXTURE_IMAGE_TYPE, 1, &ttype);
 	std::cout << "Texture: " << (GLuint)ptformat << " " << (GLuint)tformat << " " << (GLuint)ttype << std::endl;*/
 
 	// Texture
@@ -150,10 +151,6 @@ auto init() -> bool
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 2, 2, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
-	//GLsync fence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-	//glWaitSync(fence, 0, GL_TIMEOUT_IGNORED);
-	//glDeleteSync(fence);
-		
 	return true;
 }
 
