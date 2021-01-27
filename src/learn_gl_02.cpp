@@ -1,6 +1,7 @@
 ﻿#include <iostream>
 #include <thread>
 #include <chrono>
+#include <mutex>
 
 #include <glad/glad.h>
 #define GLFW_INCLUDE_NONE
@@ -51,6 +52,8 @@ GLsync gMainFence;
 GLsync gSndFence;
 
 bool gThreadShouldRun;
+
+std::mutex gMtx;
 
 auto main() -> int
 {
@@ -129,17 +132,14 @@ auto main() -> int
 				//std::this_thread::sleep_for(std::chrono::seconds(2L));
 				std::this_thread::sleep_for(std::chrono::milliseconds(16L));
 				//std::cout << "Chay  thread" << std::endl;
+				vertices[0] += 0.001f;
 
-
-				//std::cout << "MainFence: " << gMainFence << std::endl;
-				//glWaitSync(gMainFence, 0, GL_TIMEOUT_IGNORED);
-				auto status = glClientWaitSync(gMainFence, GL_SYNC_FLUSH_COMMANDS_BIT, GL_TIMEOUT_IGNORED);
-				if (status == GL_ALREADY_SIGNALED || status == GL_CONDITION_SATISFIED)
+				gMtx.lock();
+				if (gMainFence)
 				{
+					glWaitSync(gMainFence, 0, GL_TIMEOUT_IGNORED);
 					glDeleteSync(gMainFence);
 					gMainFence = 0;
-
-					vertices[0] += 0.001f;
 
 					if (gSndFence == 0)
 					{
@@ -150,27 +150,38 @@ auto main() -> int
 					}
 
 				}
+				gMtx.unlock();
 			}
 		});
 
 	glfwSwapInterval(1);
 	while (glfwWindowShouldClose(pWindow) == GLFW_FALSE)
 	{
-		glWaitSync(gSndFence, 0, GL_TIMEOUT_IGNORED);
-		glDeleteSync(gSndFence);
-		gSndFence = 0;
-
 		glClearColor(0.0f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		gMtx.lock();
+		if (gSndFence)
+		{
+			glWaitSync(gSndFence, 0, GL_TIMEOUT_IGNORED);
+			glDeleteSync(gSndFence);
+			gSndFence = 0;
+		}
+		gMtx.unlock();
 
 		glUseProgram(gProgram);
 		glBindVertexArray(gVAO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-		if (gMainFence == 0)
+		gMtx.lock();
+		if (gMainFence)
 		{
-			gMainFence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+			glWaitSync(gMainFence, 0, GL_TIMEOUT_IGNORED);
+			glDeleteSync(gMainFence);
+			gMainFence = 0;
 		}
+		gMainFence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+		gMtx.unlock();
 
 		glfwSwapBuffers(pWindow);
 		glfwPollEvents();
