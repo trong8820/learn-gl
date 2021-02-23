@@ -8,6 +8,7 @@ delete .DS_Store files on windows: cmd: del /s /q /f /a .DS_STORE_
 2. Có cần thiết phải unbind: Thông thường sẽ không cần phải unbind, điều này thường được sử dụng để tránh việc thao tác thay đổi trên trạng thái trước. Tuy nhiên lời khuyên là nên đặt lại trạng thái trước khi bắt đầu làm điều gì đó thay vì unbind sau khi thao tác.
 3. Định dạng texture BGRA có nhanh hơn: < Cần kiểm tra >
 4. Có phải tất cả các hàm OpenGL đều tốn chi phí trên GPU: Có thể có có thể không, bởi vì bản thân OpenGL chỉ là một định nghĩa và việc triển khai phụ thuộc vào nhiều yếu tố như thiết bị phần cứng, nhà thiết kế sản xuất. Miễn là các triển hai này tuân theo các đặc điểm kỹ thuật cũng như cho ra kết quả đúng như mong muốn. Với các triển khai khác nhau có thể làm các công việc khác nhau, tối ưu hóa khác nhau.
+5. Thứ tự thực hiện testing như depth test, stencil test, alpha test: Thứ tự thực hiện không được áp dụng một cách bắt buộc với tất cả phần cứng và API.
 
 ## Common Mistakes
 1. **Extensions and OpenGL Versions**: Cần kiểm tra phiên bản của OpenGL và các api mở rộng xem có hỗ trợ không trước khi sử dụng.
@@ -52,3 +53,11 @@ Bộ đệm này có giá trị từ [0.0 -> 1.0] và được tính toán tuy�
 - Sử dụng `glReadPixels` hoặc `glCopyTexImage2D` với `GL_DEPTH_COMPONENT` tuy nhiên thì ví dụ như OpenGL ES 3.2 không hỗ trợ hoàn toàn.
 - Sử dụng bộ đệm mầu để lấy ra thông tin `gl_FragCorrd.z` tuy nhiên bộ đệm mầu sẽ thường sử dụng 8bit cho mỗi kênh và việc lưu trữ như vậy không được chuẩn so với kích thước mà bộ đệm depth có.
 - Sử dụng FrameBuffer sử dụng `GL_DEPTH_ATTACHMENT`
+
+Ghi giá trị:
+- Sử dụng `glDrawPixels` với `GL_DEPTH_COMPONENT` tuy nhiên cũng giống như việc đọc giá trị có thể không được hỗ trợ.
+
+## Stencil buffer
+Là một phần mở rộng tuỳ chọn của bộ đệm depth cho phép kiểm soát nhiều hơn việc hiển thị hay không hiển thị điểm ảnh. Giống như bộ đệm độ sau, một giá trị được lưu trữ cho mỗi pixel, nhưng lần này có thể kiểm soát được giá trị này tốt hơn.
+
+Về cơ bản việc đọc ghi giá trị cũng có thể sử dụng `glReadPixels` và `glDrawPixels` như với depth buffer. Ngoài ra còn có thể thẳng việc render objects để cập nhật vào bộ đệm stencil buffer.
