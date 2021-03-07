@@ -84,6 +84,7 @@ set(SOURCE_FILES
 # List projects
 add_executable(${PROJECT_NAME}_01 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_01.cpp)
 add_executable(${PROJECT_NAME}_02 ${3RDPARTY_SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_02.cpp)
+add_executable(${PROJECT_NAME}_03 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_03.cpp)
 
 
 # Data
