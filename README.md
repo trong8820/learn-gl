@@ -40,24 +40,3 @@ https://www.khronos.org/opengl/wiki/Common_Mistakes
 7. Depth Test bao gồm việc sử dụng, đọc và thay đổi thông tin bộ đệm
 8. Stencil Test bao gồm việc sử dụng, đọc và thay đổi thông tin bộ đệm
 9. Blending hiển thị toàn bộ các chế độ hoà trộn
-
-
-## Depth buffer
-Là bộ đệm giống như bộ đệm mầu, tuy nhiên nó được tạo ra tự động và lưu trữ giá trị độ sâu. Định dạng sử dụng là kiểu thực với kích thước 16, 24 hoặc 32 bit. Khi tính năng kiểm tra độ sâu được bật, OpenGL trong giai đoạn fragment sẽ kiểm tra giá trị độ sâu với bộ đệm độ sâu. Nếu kiểm tra không thành không thì điểm ảnh đó sẽ bị loại bỏ.
-
-Ngày này hầu hết các GPU có bổ xung thêm tính năng phần cứng cho phép kiểm tra độ sâu sớm hơn trước khi đến giai đọan fragment.
-
-Bộ đệm này có giá trị từ [0.0 -> 1.0] và được tính toán tuyến tính. Ngoài ra với độ sai lệch trong tính toán số thực khi hai mặt cần hiển thị quá gần nhau sẽ dẫn đến trường hợp trồng chất. Z-Fighting. Để khắc phục hiện tượng này có thể tăng độ chính xác của bộ đệm, hoặc bù trừ khoảng cách giữa các mặt gần nhau với một định lượng bias.
-
-Đọc giá trị:
-- Sử dụng `glReadPixels` hoặc `glCopyTexImage2D` với `GL_DEPTH_COMPONENT` tuy nhiên thì ví dụ như OpenGL ES 3.2 không hỗ trợ hoàn toàn.
-- Sử dụng bộ đệm mầu để lấy ra thông tin `gl_FragCorrd.z` tuy nhiên bộ đệm mầu sẽ thường sử dụng 8bit cho mỗi kênh và việc lưu trữ như vậy không được chuẩn so với kích thước mà bộ đệm depth có.
-- Sử dụng FrameBuffer sử dụng `GL_DEPTH_ATTACHMENT`
-
-Ghi giá trị:
-- Sử dụng `glDrawPixels` với `GL_DEPTH_COMPONENT` tuy nhiên cũng giống như việc đọc giá trị có thể không được hỗ trợ.
-
-## Stencil buffer
-Là một phần mở rộng tuỳ chọn của bộ đệm depth cho phép kiểm soát nhiều hơn việc hiển thị hay không hiển thị điểm ảnh. Giống như bộ đệm độ sau, một giá trị được lưu trữ cho mỗi pixel, nhưng lần này có thể kiểm soát được giá trị này tốt hơn.
-
-Về cơ bản việc đọc ghi giá trị cũng có thể sử dụng `glReadPixels` và `glDrawPixels` như với depth buffer. Ngoài ra còn có thể thẳng việc render objects để cập nhật vào bộ đệm stencil buffer.

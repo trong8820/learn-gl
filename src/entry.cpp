@@ -21,7 +21,7 @@ auto run() -> int
 		});
 #endif
 
-	auto pWindow = glfwCreateWindow(800, 600, "Example 01", nullptr, nullptr);
+	auto pWindow = glfwCreateWindow(800, 600, "Learn GL", nullptr, nullptr);
 	if (pWindow == nullptr) return EXIT_FAILURE;
 
 	glfwMakeContextCurrent(pWindow);
