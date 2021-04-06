@@ -1,11 +1,11 @@
 #include "entry.h"
 
 float vertices[] = {
-	// Pos			// Color
-	0.5f,  0.5f, 	1.0f, 0.0f, 0.0f, 1.0f,  // top right
-	0.5f, -0.5f, 	0.0f, 1.0f, 0.0f, 1.0f,  // bottom right
-	-0.5f, -0.5f, 	0.0f, 0.0f, 1.0f, 1.0f,  // bottom left
-	-0.5f,  0.5f, 	1.0f, 1.0f, 0.0f, 1.0f,   // top left
+	// Pos						// Color
+	0.5f,  0.5f, 0.0f, 0.0f, 	1.0f, 0.0f, 0.0f, 1.0f,  // top right
+	0.5f, -0.5f, 0.0f, 0.0f, 	0.0f, 1.0f, 0.0f, 1.0f,  // bottom right
+	-0.5f, -0.5f, 0.0f, 0.0f, 	0.0f, 0.0f, 1.0f, 1.0f,  // bottom left
+	-0.5f,  0.5f, 0.0f, 0.0f, 	1.0f, 1.0f, 0.0f, 1.0f,   // top left
 };
 
 float uvs[] = {
@@ -28,7 +28,7 @@ unsigned char pixels[] = {
 const char *vertexShaderSource = R"(
 #version 410 core
 
-layout (location = 0) in vec2 aPos;
+layout (location = 0) in vec4 aPos;
 layout (location = 1) in vec4 aColor;
 layout (location = 2) in vec2 aTexCoord;
 
@@ -39,7 +39,7 @@ void main()
 {
 	vColor = aColor;
 	vTexCoord = aTexCoord;
-	gl_Position = vec4(aPos.x, aPos.y, 0.0, 1.0);
+	gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
 }
 )";
 
@@ -63,8 +63,12 @@ GLuint gProgram;
 GLuint gVAO;
 GLuint gTexture;
 
+GLuint gVBO1;
+
 auto init() -> bool
 {
+	glEnable(GL_DEPTH_TEST);
+
 	auto vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
 	glCompileShader(vertexShader);
@@ -84,16 +88,16 @@ auto init() -> bool
 	glGenVertexArrays(1, &gVAO);
 	std::cout << "VAO: " << gVAO << std::endl;
 	glBindVertexArray(gVAO);
-		GLuint VBO1;
-		glGenBuffers(1, &VBO1);
-		std::cout << "VBO1: " << VBO1 << std::endl;
-		glBindBuffer(GL_ARRAY_BUFFER, VBO1);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+		//GLuint VBO1;
+		glGenBuffers(1, &gVBO1);
+		std::cout << "VBO1: " << gVBO1 << std::endl;
+		glBindBuffer(GL_ARRAY_BUFFER, gVBO1);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
 				glEnableVertexAttribArray(0);
-				glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
+				glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
 
 				glEnableVertexAttribArray(1);
-				glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
+				glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(4 * sizeof(GLfloat)));
 
 		GLuint VBO2;
 		glGenBuffers(1, &VBO2);
@@ -159,16 +163,53 @@ auto update() -> void
 
 }
 
+GLfloat gDepth = 0.0f;
+GLint64 gTimer;
+
 auto draw() -> void
 {
+	GLuint64 elapsed_time;
+	GLuint query;
+	glGenQueries(1, &query);
+	glBeginQuery(GL_TIME_ELAPSED, query);
+
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+	if (gDepth > 0.0f) 
+	{
+		gDepth = 0.0f;
+	} else {
+		gDepth = 0.2f;
+	}
+
+	glBindBuffer(GL_ARRAY_BUFFER, gVBO1);
+	vertices[2] = gDepth;
+	vertices[10] = gDepth;
+	vertices[18] = gDepth;
+	vertices[26] = gDepth;
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
+
 	glClearColor(0.0f, 0.2f, 0.2f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glUseProgram(gProgram);
 	glBindVertexArray(gVAO);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+	GLfloat depth = 0.0f;
+	glReadPixels(400, 300, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
+	std::cout << gDepth << " " << depth << std::endl;
+
+	glEndQuery(GL_TIME_ELAPSED);
+	GLuint stopTimerAvailable = 0;
+	while (!stopTimerAvailable) 
+	{
+		glGetQueryObjectuiv(query, GL_QUERY_RESULT_AVAILABLE, &stopTimerAvailable);
+	}
+
+	glGetQueryObjectui64v(query, GL_QUERY_RESULT, &elapsed_time);
+	
+	std::cout << "Milliseconds: " << elapsed_time / 1000000.0 << std::endl;
 }
 
 auto main() -> int
