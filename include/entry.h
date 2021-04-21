@@ -7,6 +7,9 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
+int gWidth{ 0 };
+int gHeight{ 0 };
+
 int run();
 
 bool init();

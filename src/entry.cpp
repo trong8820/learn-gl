@@ -27,9 +27,7 @@ auto run() -> int
 	glfwMakeContextCurrent(pWindow);
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) return EXIT_FAILURE;
 
-	int width{ 0 };
-	int height{ 0 };
-	glfwGetWindowSize(pWindow, &width, &height);
+	glfwGetWindowSize(pWindow, &gWidth, &gHeight);
 	//float xscale{ 1.0f };
 	//float yscale{ 1.0f };
 	//glfwGetWindowContentScale(m_pWindow, &xscale, &yscale);

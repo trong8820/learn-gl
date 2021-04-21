@@ -87,6 +87,7 @@ add_executable(${PROJECT_NAME}_02 ${3RDPARTY_SOURCE_FILES} ${CMAKE_SOURCE_DIR}/s
 add_executable(${PROJECT_NAME}_03 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_03.cpp)
 add_executable(${PROJECT_NAME}_04 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_04.cpp)
 add_executable(${PROJECT_NAME}_05 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_05.cpp)
+add_executable(${PROJECT_NAME}_06 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_06.cpp)
 
 
 # Data
