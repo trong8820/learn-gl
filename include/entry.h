@@ -2,6 +2,7 @@
 #define ENTRY_H__
 
 #include <iostream>
+#include <string>
 
 #include <glad/glad.h>
 #define GLFW_INCLUDE_NONE

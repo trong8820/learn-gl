@@ -110,7 +110,7 @@ out vec4 FragColor;
 
 void main()
 {
-    vec2 blurStep = 3.0 / textureSize(texture0, 0);
+    vec2 blurStep = 1.0 / textureSize(texture0, 0);
 
     vec4 totalColor = texture(texture0, vec2(vTexCoord.x + 1.0 * blurStep.x, vTexCoord.y)) * gaussianWeights[0] 
                     + texture(texture0, vec2(vTexCoord.x + 2.0 * blurStep.x, vTexCoord.y)) * gaussianWeights[1]
@@ -294,10 +294,14 @@ auto init() -> bool
         bool isWhite = false;
         isWhite = i == 0 || i == 4 || i == 6 || i == 8 || i == 12 || i == 16 || i == 18 || i == 20 || i == 24;
         float r = isWhite ? 1.0f : 0.2f;
-        float g = isWhite ? 1.0f : 0.2f;
+        float g = isWhite ? 1.0f : 0.4f;
         float b = isWhite ? 1.0f : 0.8f;
         glUniform4f(glGetUniformLocation(gRenderSceneProgram, ("colors[" +std::to_string(i) + "]").c_str()), r, g, b, 1.0f);
     }
+    glUseProgram(gBlendTextureProgram);
+    glUniform1i(glGetUniformLocation(gBlendTextureProgram, "texture0"), 0);
+    glUniform1i(glGetUniformLocation(gBlendTextureProgram, "texture1"), 1);
+    glUniform1i(glGetUniformLocation(gBlendTextureProgram, "texture2"), 2);
 
     glad_glTexStorage2D = (PFNGLTEXSTORAGE2DPROC)glfwGetProcAddress("glTexStorage2D"); // OpenGL 4.2 or ARB_texture_storage
 
@@ -373,12 +377,12 @@ auto draw() -> void
     glViewport(0, 0, gWidth/2, gHeight/2);
 
     glUseProgram(gRenderLuminanceProgram);
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, gFrameTexture);
 
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
     // Blur
-    glEnable(GL_SCISSOR_TEST);
     glBindFramebuffer(GL_FRAMEBUFFER, gBlurFBO[1]);
 
     glUseProgram(gRenderBlurProgram);
@@ -386,7 +390,7 @@ auto draw() -> void
 
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
-    for (size_t i = 0; i < 2; i++)
+    for (size_t i = 0; i < 1; i++)
     {
         glBindFramebuffer(GL_FRAMEBUFFER, gBlurFBO[0]);
         glUseProgram(gRenderBlurProgram);
@@ -398,14 +402,20 @@ auto draw() -> void
         glBindTexture(GL_TEXTURE_2D, gBlurTexture[0]);
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
     }
-    glDisable(GL_SCISSOR_TEST);
     
     // Draw to backbuffer
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     glViewport(0, 0, gWidth, gHeight);
+    glClearColor(0.0f, 0.2f, 0.2f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
     
-    glUseProgram(gRenderTextureProgram);
+    glUseProgram(gBlendTextureProgram);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, gFrameTexture);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, gBlurTexture[0]);
+    glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, gBlurTexture[1]);
 
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
