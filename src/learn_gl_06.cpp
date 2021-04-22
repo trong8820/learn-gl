@@ -97,7 +97,7 @@ void main()
 }
 )";
 
-const char *renderBlurFragmentShaderSource = R"(
+const char *renderBlurHorFragmentShaderSource = R"(
 #version 410 core
 
 const float gaussianWeights[] = float[] (0.2270270270, 0.3162162162, 0.0702702703);
@@ -110,21 +110,40 @@ out vec4 FragColor;
 
 void main()
 {
-    vec2 blurStep = 1.0 / textureSize(texture0, 0);
+    float blurStep = 1.6 / float((textureSize(texture0, 0)).x);
 
-    vec4 totalColor = texture(texture0, vec2(vTexCoord.x + 1.0 * blurStep.x, vTexCoord.y)) * gaussianWeights[0] 
-                    + texture(texture0, vec2(vTexCoord.x + 2.0 * blurStep.x, vTexCoord.y)) * gaussianWeights[1]
-                    + texture(texture0, vec2(vTexCoord.x + 3.0 * blurStep.x, vTexCoord.y)) * gaussianWeights[2]
-                    + texture(texture0, vec2(vTexCoord.x - 1.0 * blurStep.x, vTexCoord.y)) * gaussianWeights[0]
-                    + texture(texture0, vec2(vTexCoord.x - 2.0 * blurStep.x, vTexCoord.y)) * gaussianWeights[1]
-                    + texture(texture0, vec2(vTexCoord.x - 3.0 * blurStep.x, vTexCoord.y)) * gaussianWeights[2]
+    vec4 totalColor = texture(texture0, vec2(vTexCoord.x + 1.0 * blurStep, vTexCoord.y)) * gaussianWeights[0] 
+                    + texture(texture0, vec2(vTexCoord.x + 2.0 * blurStep, vTexCoord.y)) * gaussianWeights[1]
+                    + texture(texture0, vec2(vTexCoord.x + 3.0 * blurStep, vTexCoord.y)) * gaussianWeights[2]
+                    + texture(texture0, vec2(vTexCoord.x - 1.0 * blurStep, vTexCoord.y)) * gaussianWeights[0]
+                    + texture(texture0, vec2(vTexCoord.x - 2.0 * blurStep, vTexCoord.y)) * gaussianWeights[1]
+                    + texture(texture0, vec2(vTexCoord.x - 3.0 * blurStep, vTexCoord.y)) * gaussianWeights[2];
 
-                    + texture(texture0, vec2(vTexCoord.x, vTexCoord.y + 1.0 * blurStep.y)) * gaussianWeights[0]
-                    + texture(texture0, vec2(vTexCoord.x, vTexCoord.y + 2.0 * blurStep.y)) * gaussianWeights[1]
-                    + texture(texture0, vec2(vTexCoord.x, vTexCoord.y + 3.0 * blurStep.y)) * gaussianWeights[2]
-                    + texture(texture0, vec2(vTexCoord.x, vTexCoord.y - 1.0 * blurStep.y)) * gaussianWeights[0]
-                    + texture(texture0, vec2(vTexCoord.x, vTexCoord.y - 2.0 * blurStep.y)) * gaussianWeights[1]
-                    + texture(texture0, vec2(vTexCoord.x, vTexCoord.y - 3.0 * blurStep.y)) * gaussianWeights[2];
+    FragColor = vec4(totalColor.xyz, 1.0);
+}
+)";
+
+const char *renderBlurVerFragmentShaderSource = R"(
+#version 410 core
+
+const float gaussianWeights[] = float[] (0.2270270270, 0.3162162162, 0.0702702703);
+
+uniform sampler2D texture0;
+
+in vec2 vTexCoord;
+
+out vec4 FragColor;
+
+void main()
+{
+    float blurStep = 1.6 / float((textureSize(texture0, 0)).y);
+
+    vec4 totalColor = texture(texture0, vec2(vTexCoord.x, vTexCoord.y + 1.0 * blurStep)) * gaussianWeights[0]
+                    + texture(texture0, vec2(vTexCoord.x, vTexCoord.y + 2.0 * blurStep)) * gaussianWeights[1]
+                    + texture(texture0, vec2(vTexCoord.x, vTexCoord.y + 3.0 * blurStep)) * gaussianWeights[2]
+                    + texture(texture0, vec2(vTexCoord.x, vTexCoord.y - 1.0 * blurStep)) * gaussianWeights[0]
+                    + texture(texture0, vec2(vTexCoord.x, vTexCoord.y - 2.0 * blurStep)) * gaussianWeights[1]
+                    + texture(texture0, vec2(vTexCoord.x, vTexCoord.y - 3.0 * blurStep)) * gaussianWeights[2];
 
     FragColor = vec4(totalColor.xyz, 1.0);
 }
@@ -152,6 +171,8 @@ uniform sampler2D texture0;
 uniform sampler2D texture1;
 uniform sampler2D texture2;
 
+uniform float mixFactor;
+
 in vec2 vTexCoord;
 
 out vec4 FragColor;
@@ -161,13 +182,14 @@ void main()
     vec4 color0 = texture(texture0, vTexCoord);
     vec4 color1 = texture(texture1, vTexCoord);
     vec4 color2 = texture(texture2, vTexCoord);
-	FragColor = color0 + mix(color1, color2, 0.5);
+	FragColor = color0 + color1 + mix(color1, color2, mixFactor)*mixFactor;
 }
 )";
 
 GLuint gRenderSceneProgram;
 GLuint gRenderLuminanceProgram;
-GLuint gRenderBlurProgram;
+GLuint gRenderBlurHorProgram;
+GLuint gRenderBlurVerProgram;
 GLuint gRenderTextureProgram;
 GLuint gBlendTextureProgram;
 GLuint gVAO;
@@ -178,6 +200,12 @@ GLuint gLuminanceFBO;
 GLuint gLuminanceTexture;
 GLuint gBlurFBO[2];
 GLuint gBlurTexture[2];
+GLuint gStrongerBlurFBO;
+GLuint gStrongerBlurTexture;
+
+GLint gMixFactorLoc;
+float gTime = 0.0f;
+float gMixFactor = 0.0f;
 
 auto init() -> bool
 {
@@ -223,13 +251,31 @@ auto init() -> bool
         glCompileShader(vertexShader);
 
         auto fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(fragmentShader, 1, &renderBlurFragmentShaderSource, nullptr);
+        glShaderSource(fragmentShader, 1, &renderBlurHorFragmentShaderSource, nullptr);
         glCompileShader(fragmentShader);
 
-        gRenderBlurProgram = glCreateProgram();
-        glAttachShader(gRenderBlurProgram, vertexShader);
-        glAttachShader(gRenderBlurProgram, fragmentShader);
-        glLinkProgram(gRenderBlurProgram);
+        gRenderBlurHorProgram = glCreateProgram();
+        glAttachShader(gRenderBlurHorProgram, vertexShader);
+        glAttachShader(gRenderBlurHorProgram, fragmentShader);
+        glLinkProgram(gRenderBlurHorProgram);
+
+        glDeleteShader(vertexShader);
+        glDeleteShader(fragmentShader);
+    }
+
+    {
+        auto vertexShader = glCreateShader(GL_VERTEX_SHADER);
+        glShaderSource(vertexShader, 1, &renderTextureVertexShaderSource, nullptr);
+        glCompileShader(vertexShader);
+
+        auto fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+        glShaderSource(fragmentShader, 1, &renderBlurVerFragmentShaderSource, nullptr);
+        glCompileShader(fragmentShader);
+
+        gRenderBlurVerProgram = glCreateProgram();
+        glAttachShader(gRenderBlurVerProgram, vertexShader);
+        glAttachShader(gRenderBlurVerProgram, fragmentShader);
+        glLinkProgram(gRenderBlurVerProgram);
 
         glDeleteShader(vertexShader);
         glDeleteShader(fragmentShader);
@@ -302,6 +348,7 @@ auto init() -> bool
     glUniform1i(glGetUniformLocation(gBlendTextureProgram, "texture0"), 0);
     glUniform1i(glGetUniformLocation(gBlendTextureProgram, "texture1"), 1);
     glUniform1i(glGetUniformLocation(gBlendTextureProgram, "texture2"), 2);
+    gMixFactorLoc = glGetUniformLocation(gBlendTextureProgram, "mixFactor");
 
     glad_glTexStorage2D = (PFNGLTEXSTORAGE2DPROC)glfwGetProcAddress("glTexStorage2D"); // OpenGL 4.2 or ARB_texture_storage
 
@@ -351,11 +398,27 @@ auto init() -> bool
         glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gBlurTexture[i], 0);
     }
 
+    // StrongerBlur Framebuffer
+    glGenFramebuffers(1, &gStrongerBlurFBO);
+    glGenTextures(1, &gStrongerBlurTexture);
+    
+    glBindTexture(GL_TEXTURE_2D, gStrongerBlurTexture);
+    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, gWidth / 2, gHeight / 2);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, gStrongerBlurFBO);
+    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gStrongerBlurTexture, 0);
+
     return true;
 }
 
 auto update() -> void
 {
+    gTime += 1.0/60.0f;
+    gMixFactor = 0.5 + sinf(gTime * 3.0f) / 2.0f;
 }
 
 auto draw() -> void
@@ -383,22 +446,26 @@ auto draw() -> void
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
     // Blur
-    glBindFramebuffer(GL_FRAMEBUFFER, gBlurFBO[1]);
-
-    glUseProgram(gRenderBlurProgram);
+    glBindFramebuffer(GL_FRAMEBUFFER, gBlurFBO[0]);
+    glUseProgram(gRenderBlurHorProgram);
     glBindTexture(GL_TEXTURE_2D, gLuminanceTexture);
-
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
-    for (size_t i = 0; i < 1; i++)
+    glBindFramebuffer(GL_FRAMEBUFFER, gBlurFBO[1]);
+    glUseProgram(gRenderBlurVerProgram);
+    glBindTexture(GL_TEXTURE_2D, gBlurTexture[0]);
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+    int stepTotal = 4;
+    for (size_t i = 0; i < stepTotal; i++)
     {
         glBindFramebuffer(GL_FRAMEBUFFER, gBlurFBO[0]);
-        glUseProgram(gRenderBlurProgram);
+        glUseProgram(gRenderBlurHorProgram);
         glBindTexture(GL_TEXTURE_2D, gBlurTexture[1]);
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
-        glBindFramebuffer(GL_FRAMEBUFFER, gBlurFBO[1]);
-        glUseProgram(gRenderBlurProgram);
+        glBindFramebuffer(GL_FRAMEBUFFER, i == (stepTotal - 1) ? gStrongerBlurFBO : gBlurFBO[1]);
+        glUseProgram(gRenderBlurVerProgram);
         glBindTexture(GL_TEXTURE_2D, gBlurTexture[0]);
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
     }
@@ -411,12 +478,13 @@ auto draw() -> void
 	glClear(GL_COLOR_BUFFER_BIT);
     
     glUseProgram(gBlendTextureProgram);
+    glUniform1f(gMixFactorLoc, gMixFactor);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, gFrameTexture);
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, gBlurTexture[0]);
-    glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, gBlurTexture[1]);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, gStrongerBlurTexture);
 
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 }
