@@ -1,4 +1,6 @@
-﻿#include "entry.h"
+#include "entry.h"
+
+// Instancing v2
 
 float vertices[] = {
 	// Pos			// Color
@@ -13,6 +15,17 @@ float uvs[] = {
 	1.0f, 1.0f,
 	0.0f, 1.0f,
 	0.0f, 0.0f,
+};
+
+float offsets[] = {
+    0*0.01f, 0*0.01f,
+    1*0.01f, 1*0.01f,
+    2*0.01f, 2*0.01f,
+    3*0.01f, 3*0.01f,
+    4*0.01f, 4*0.01f,
+    5*0.01f, 5*0.01f,
+    6*0.01f, 6*0.01f,
+    7*0.01f, 7*0.01f,
 };
 
 unsigned int indices[] = {  // note that we start from 0!
@@ -31,6 +44,7 @@ const char *vertexShaderSource = R"(
 layout (location = 0) in vec2 aPos;
 layout (location = 1) in vec4 aColor;
 layout (location = 2) in vec2 aTexCoord;
+layout (location = 3) in vec2 offset;
 
 out vec4 vColor;
 out vec2 vTexCoord;
@@ -39,7 +53,7 @@ void main()
 {
 	vColor = aColor;
 	vTexCoord = aTexCoord;
-	gl_Position = vec4(aPos.x, aPos.y, 0.0, 1.0);
+	gl_Position = vec4(aPos.x + offset.x, aPos.y + offset.y, 0.0, 1.0);
 }
 )";
 
@@ -81,7 +95,6 @@ auto init() -> bool
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
 
-	// Pass Matrix see: https://learnopengl.com/Advanced-OpenGL/Instancing
 	glGenVertexArrays(1, &gVAO);
 	std::cout << "VAO: " << gVAO << std::endl;
 	glBindVertexArray(gVAO);
@@ -103,6 +116,15 @@ auto init() -> bool
 			glBufferData(GL_ARRAY_BUFFER, sizeof(uvs), uvs, GL_STATIC_DRAW);
 				glEnableVertexAttribArray(2);
 				glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (GLvoid*)0);
+
+        GLuint VBO3;
+		glGenBuffers(1, &VBO3);
+		std::cout << "VBO3: " << VBO3 << std::endl;
+		glBindBuffer(GL_ARRAY_BUFFER, VBO3);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(offsets), offsets, GL_STATIC_DRAW);
+				glEnableVertexAttribArray(3);
+				glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (GLvoid*)0);
+                glVertexAttribDivisor(3, 1);
 
 		GLuint EBO;
 		glGenBuffers(1, &EBO);
@@ -169,7 +191,8 @@ auto draw() -> void
 
 	glUseProgram(gProgram);
 	glBindVertexArray(gVAO);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, 8);
 }
 
 auto main() -> int

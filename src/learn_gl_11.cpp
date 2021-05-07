@@ -1,4 +1,6 @@
-﻿#include "entry.h"
+#include "entry.h"
+
+// Instancing v1
 
 float vertices[] = {
 	// Pos			// Color
@@ -32,6 +34,8 @@ layout (location = 0) in vec2 aPos;
 layout (location = 1) in vec4 aColor;
 layout (location = 2) in vec2 aTexCoord;
 
+uniform vec2 offsets[8];
+
 out vec4 vColor;
 out vec2 vTexCoord;
 
@@ -39,7 +43,8 @@ void main()
 {
 	vColor = aColor;
 	vTexCoord = aTexCoord;
-	gl_Position = vec4(aPos.x, aPos.y, 0.0, 1.0);
+    vec2 offset = offsets[gl_InstanceID];
+	gl_Position = vec4(aPos.x + offset.x, aPos.y + offset.y, 0.0, 1.0);
 }
 )";
 
@@ -81,7 +86,6 @@ auto init() -> bool
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
 
-	// Pass Matrix see: https://learnopengl.com/Advanced-OpenGL/Instancing
 	glGenVertexArrays(1, &gVAO);
 	std::cout << "VAO: " << gVAO << std::endl;
 	glBindVertexArray(gVAO);
@@ -151,6 +155,16 @@ auto init() -> bool
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 2, 2, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+        
+    glUseProgram(gProgram);
+    float offsets[16];
+    for (size_t i = 0; i < 8; i++)
+    {
+        offsets[i*2 + 0] = 0.01f*i;
+        offsets[i*2 + 1] = 0.01f*i;
+        //glUniform2f(glGetUniformLocation(gProgram, ("offsets[" + std::to_string(i) + "]").c_str()), 0.01f*i, 0.01f*i);
+    }
+    glUniform2fv(glGetUniformLocation(gProgram, "offsets"), 8, offsets);
 
 	return true;
 }
@@ -169,7 +183,8 @@ auto draw() -> void
 
 	glUseProgram(gProgram);
 	glBindVertexArray(gVAO);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, 8);
 }
 
 auto main() -> int
