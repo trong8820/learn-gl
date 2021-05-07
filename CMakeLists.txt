@@ -47,6 +47,7 @@ endif()
 include_directories (
 	${CMAKE_SOURCE_DIR}/3rdparty/glad-0.1.34/include
 	${CMAKE_SOURCE_DIR}/3rdparty/glfw-3.3.2/include
+	${CMAKE_SOURCE_DIR}/3rdparty/spirv/include
 )
 
 # 3rdparty sources
@@ -59,10 +60,11 @@ file(GLOB_RECURSE 3RDPARTY_SOURCE_FILES
 # 3rdparty libs
 link_directories(
 	${CMAKE_SOURCE_DIR}/3rdparty/glfw-3.3.2/lib/${PLATFORM_FOLDER}
+	${CMAKE_SOURCE_DIR}/3rdparty/spirv/lib/${PLATFORM_FOLDER}
 )
 
 # 3rdparty link
-link_libraries(glfw3)
+link_libraries(glfw3 spirv-cross-core spirv-cross-glsl)
 
 if (APPLE)
 	link_libraries(
@@ -89,11 +91,13 @@ add_executable(${PROJECT_NAME}_04 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMA
 add_executable(${PROJECT_NAME}_05 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_05.cpp)
 add_executable(${PROJECT_NAME}_06 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_06.cpp)
 add_executable(${PROJECT_NAME}_07 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_07.cpp)
+add_executable(${PROJECT_NAME}_08 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_08.cpp)
+add_executable(${PROJECT_NAME}_09 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_09.cpp)
 
 # Data
 if (EXISTS ${CMAKE_SOURCE_DIR}/data)
-add_custom_command(TARGET  ${PROJECT_NAME} PRE_BUILD
+add_custom_command(TARGET  ${PROJECT_NAME}_08 PRE_BUILD
 				   COMMAND ${CMAKE_COMMAND} -E copy_directory
-				   ${CMAKE_SOURCE_DIR}/data $<TARGET_FILE_DIR:${PROJECT_NAME}>/data
+				   ${CMAKE_SOURCE_DIR}/data $<TARGET_FILE_DIR:${PROJECT_NAME}_08>/data
 )
 endif()
