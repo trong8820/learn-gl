@@ -64,7 +64,8 @@ link_directories(
 )
 
 # 3rdparty link
-link_libraries(glfw3 spirv-cross-core spirv-cross-glsl)
+link_libraries(glfw3)
+#link_libraries(glfw3 spirv-cross-core spirv-cross-glsl)
 
 if (APPLE)
 	link_libraries(
@@ -97,6 +98,7 @@ add_executable(${PROJECT_NAME}_10 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMA
 add_executable(${PROJECT_NAME}_11 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_11.cpp)
 add_executable(${PROJECT_NAME}_12 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_12.cpp)
 add_executable(${PROJECT_NAME}_13 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_13.cpp)
+add_executable(${PROJECT_NAME}_14 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_14.cpp)
 
 # Data
 if (EXISTS ${CMAKE_SOURCE_DIR}/data)
