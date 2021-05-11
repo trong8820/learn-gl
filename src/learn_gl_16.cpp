@@ -1,7 +1,8 @@
 #include "entry.h"
 
-// Shared Uniforms
-// https://stackoverflow.com/questions/63981260/vertex-buffer-binding-index-and-uniform-buffer-binding-points
+// Transform Feedback
+
+GLfloat data[] = { 1.0f, 2.0f, 3.0f, 4.0f, 5.0f };
 
 float vertices[] = {
 	// Pos			// Color
@@ -28,17 +29,24 @@ unsigned char pixels[] = {
 	0, 255, 0, 255,      0, 255, 255, 255,
 };
 
+const char*vertexShaderFeedbackSource = R"(
+#version 410 core
+
+in float inValue;
+out float outValue;
+
+void main()
+{
+    outValue = sqrt(inValue);
+}
+)";
+
 const char *vertexShaderSource = R"(
 #version 410 core
 
 layout (location = 0) in vec2 aPos;
 layout (location = 1) in vec4 aColor;
 layout (location = 2) in vec2 aTexCoord;
-
-layout (std140) uniform GlobalOffset
-{
-	float offset;
-};
 
 out vec4 vColor;
 out vec2 vTexCoord;
@@ -47,7 +55,7 @@ void main()
 {
 	vColor = aColor;
 	vTexCoord = aTexCoord;
-	gl_Position = vec4(aPos.x + offset, aPos.y, 0.0, 1.0);
+	gl_Position = vec4(aPos.x, aPos.y, 0.0, 1.0);
 }
 )";
 
@@ -67,36 +75,65 @@ void main()
 }
 )";
 
+GLuint gFeedbackProgram;
 GLuint gProgram;
 GLuint gVAO;
 GLuint gTexture;
 
-float offset[] = {0.3f};
-GLuint gUBO;
+GLuint gFeedbackVAO;
+GLuint gTBO;
 
 auto init() -> bool
 {
-	auto vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
-	glCompileShader(vertexShader);
+    {
+        auto vertexShader = glCreateShader(GL_VERTEX_SHADER);
+        glShaderSource(vertexShader, 1, &vertexShaderFeedbackSource, nullptr);
+        glCompileShader(vertexShader);
 
-	auto fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
-	glCompileShader(fragmentShader);
+        gFeedbackProgram = glCreateProgram();
+        glAttachShader(gFeedbackProgram, vertexShader);
+        const GLchar* feedbackVaryings[] = { "outValue" };
+        glTransformFeedbackVaryings(gFeedbackProgram, 1, feedbackVaryings, GL_INTERLEAVED_ATTRIBS);
+        glLinkProgram(gFeedbackProgram);
 
-	gProgram = glCreateProgram();
-	glAttachShader(gProgram, vertexShader);
-	glAttachShader(gProgram, fragmentShader);
-	glLinkProgram(gProgram);
+        glDeleteShader(vertexShader);
+    }
 
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
+    {
+        auto vertexShader = glCreateShader(GL_VERTEX_SHADER);
+        glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
+        glCompileShader(vertexShader);
 
-	glGenBuffers(1, &gUBO);
-	glBindBuffer(GL_UNIFORM_BUFFER, gUBO);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(float), offset, GL_STATIC_DRAW);
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-	glBindBufferBase(GL_UNIFORM_BUFFER, 0, gUBO);
+        auto fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+        glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
+        glCompileShader(fragmentShader);
+
+        gProgram = glCreateProgram();
+        glAttachShader(gProgram, vertexShader);
+        glAttachShader(gProgram, fragmentShader);
+        glLinkProgram(gProgram);
+
+        glDeleteShader(vertexShader);
+        glDeleteShader(fragmentShader);
+    }
+
+	glGenBuffers(1, &gFeedbackVAO);
+	glGenVertexArrays(1, &gFeedbackVAO);
+    glBindVertexArray(gFeedbackVAO);
+
+	GLuint VBO;
+	glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(data), data, GL_STATIC_DRAW);
+
+    glUseProgram(gFeedbackProgram);
+    GLint inputAttrib = glGetAttribLocation(gFeedbackProgram, "inValue");
+    glEnableVertexAttribArray(inputAttrib);
+    glVertexAttribPointer(inputAttrib, 1, GL_FLOAT, GL_FALSE, 0, 0);
+
+    glGenBuffers(1, &gTBO);
+    glBindBuffer(GL_ARRAY_BUFFER, gTBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(data), nullptr, GL_STATIC_READ);
 
 	// Pass Matrix see: https://learnopengl.com/Advanced-OpenGL/Instancing
 	glGenVertexArrays(1, &gVAO);
@@ -169,10 +206,6 @@ auto init() -> bool
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 2, 2, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
-	glUseProgram(gProgram);
-	GLuint loc = glGetUniformBlockIndex(gProgram, "GlobalOffset");
-	glUniformBlockBinding(gProgram, loc, 0);
-
 	return true;
 }
 
@@ -187,6 +220,20 @@ auto draw() -> void
 
 	glClearColor(0.0f, 0.2f, 0.2f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
+
+	glUseProgram(gFeedbackProgram);
+	glBindVertexArray(gFeedbackVAO);
+    glEnable(GL_RASTERIZER_DISCARD);
+        glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, gTBO);
+        glBeginTransformFeedback(GL_POINTS);
+        	glDrawArrays(GL_POINTS, 0, 5);
+		glEndTransformFeedback();
+    glDisable(GL_RASTERIZER_DISCARD);
+
+    GLfloat feedback[5];
+    glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, sizeof(feedback), feedback);
+    printf("%f %f %f %f %f\n", feedback[0], feedback[1], feedback[2], feedback[3], feedback[4]);
+
 
 	glUseProgram(gProgram);
 	glBindVertexArray(gVAO);
