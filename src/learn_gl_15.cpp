@@ -1,6 +1,6 @@
 #include "entry.h"
 
-// Shared Uniforms
+// Shared Uniforms - uniform block
 // https://stackoverflow.com/questions/63981260/vertex-buffer-binding-index-and-uniform-buffer-binding-points
 
 float vertices[] = {

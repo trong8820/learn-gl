@@ -40,3 +40,62 @@ https://www.khronos.org/opengl/wiki/Common_Mistakes
 7. Depth Test bao gồm việc sử dụng, đọc và thay đổi thông tin bộ đệm
 8. Stencil Test bao gồm việc sử dụng, đọc và thay đổi thông tin bộ đệm
 9. Blending hiển thị toàn bộ các chế độ hoà trộn
+
+
+https://www.khronos.org/files/opengl46-quick-reference-card.pdf
+|ID|Syntax|Description|
+|-|-|-|
+|1|```gl?```|Cài đặt, gỡ lỗi và truy vấn thông tin|
+|1|```gl?```|Draw điểm, đường ..., Draw với elements, Draw với Indirect|
+|1|```gl?```|Draw với Indirect sử dụng với uniform hoặc attributes|
+|1|```gl?```|Sử dụng Attrib, kết hợp hoặc tách rời|
+|1|```gl?```|Sử dụng đồng bộ, data, subdata, mapdata và sao chép copy subdata|
+|1|```gl?```|Draw sử dụng texture cùng với filter và wrap. MipMap tự động hoặc thủ công, cập nhật dữ kiệu texture, toàn bộ hoặc một phần chữ nhật|
+|1|```gl?```|Sử dụng Compressed Textures trên mỗi nền tảng|
+|1|```gl?```|Khử răng cưa|
+|1|```gl?```|Depth|
+|1|```gl?```|Stencil|
+|1|```gl?```|Blending|
+|1|```gl?```|Face culing|
+|1|```gl?```|Draw mode, Fill và Wireframe|
+|1|```gl?```|Vertex Shader|
+|1|```gl?```|Fragment Shader|
+|1|```gl?```|Geometry Shader|
+|1|```gl?```|Tessellation|
+|1|```gl?```|Chia sẻ Uniforms|
+|1|```gl?```|Framebuffers, sử dụng frame bufffers để vẽ ra bộ đệm hoặc nhiều bộ đệm|
+|1|```gl?```|Transform Feedback|
+|1|```gl?```|Lấy ngược ra các thông tin buffer, texture, depth, stencil, framebuffer|
+|1|```glColorMask```|Giới hạn kênh mầu sẽ được viết ra tại Framebuffer|
+
+|ID|Application|
+|-|-|
+|1|Shadow Mapping|
+|1|Shadow Volumes|
+|1|HDR|
+|1|Bloom|
+|1|Deferred Shading|
+|1|Occlusion Query|
+|1|Metaballs|
+|1|Terrain Rendering|
+|1|Skybox|
+|1|Advanced Shading Techniques|
+|1|Particle Flow Simulation|
+|1|Ocean Rendering|
+|1|Displacement mapping|
+|1|Raymarch|
+|1|LOD|
+|1|IBL|
+|1|OIT|
+|1|RSM|
+|1|POM|
+|1|MVS|
+|1|ASSAO|
+|1|SVT|
+|1|SSS|
+|1|Vector Display|
+|1|N Body|
+|1|Particles|
+|1|Bunnylod|
+|1|Denoise|
+|1|Bokeh|
