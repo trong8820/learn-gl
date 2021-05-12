@@ -15,26 +15,26 @@ float vertices[] = {
 	-0.5f, -0.5f, +0.5f, 	0.0f, 0.0f, 1.0f,
 	-0.5f, +0.5f, -0.5f,    0.0f, 1.0f, 0.0f,
 	-0.5f, +0.5f, +0.5f,    0.0f, 1.0f, 1.0f,
-    +0.5f, -0.5f, -0.5f,    1.0f, 0.0f, 0.0f,
-    +0.5f, -0.5f, +0.5f,    1.0f, 0.0f, 1.0f,
-    +0.5f, +0.5f, -0.5f,    1.0f, 1.0f, 0.0f,
-    +0.5f, +0.5f, +0.5f,    1.0f, 1.0f, 1.0f
+	+0.5f, -0.5f, -0.5f,    1.0f, 0.0f, 0.0f,
+	+0.5f, -0.5f, +0.5f,    1.0f, 0.0f, 1.0f,
+	+0.5f, +0.5f, -0.5f,    1.0f, 1.0f, 0.0f,
+	+0.5f, +0.5f, +0.5f,    1.0f, 1.0f, 1.0f
 };
 
-unsigned int indices[] = 
-{ 
+unsigned int indices[] =
+{
 	0, 2, 1,
-    1, 2, 3,
-    4, 5, 6,
-    5, 7, 6,
-    0, 1, 5,
-    0, 5, 4,
-    2, 6, 7,
-    2, 7, 3,
-    0, 4, 6,
-    0, 6, 2,
-    1, 3, 7,
-    1, 7, 5
+	1, 2, 3,
+	4, 5, 6,
+	5, 7, 6,
+	0, 1, 5,
+	0, 5, 4,
+	2, 6, 7,
+	2, 7, 3,
+	0, 4, 6,
+	0, 6, 2,
+	1, 3, 7,
+	1, 7, 5
 };
 
 const char *vertexShaderSource = R"(
@@ -78,7 +78,7 @@ float gAngle = 0.0f;
 auto init() -> bool
 {
 	//std::cout << "init " << gWidth << " " << gHeight << std::endl;
-    auto vertexShader = GL_CHECK_RETURN(glCreateShader(GL_VERTEX_SHADER));
+	auto vertexShader = GL_CHECK_RETURN(glCreateShader(GL_VERTEX_SHADER));
 	GL_CHECK(glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr));
 	GL_CHECK(glCompileShader(vertexShader));
 
@@ -94,7 +94,7 @@ auto init() -> bool
 	GL_CHECK(glDeleteShader(vertexShader));
 	GL_CHECK(glDeleteShader(fragmentShader));
 
-    glGenVertexArrays(1, &gVAO);
+	glGenVertexArrays(1, &gVAO);
 	glBindVertexArray(gVAO);
 		GLuint VBO;
 		glGenBuffers(1, &VBO);
@@ -106,14 +106,14 @@ auto init() -> bool
 				glEnableVertexAttribArray(1);
 				glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
 
-        GLuint EBO;
+		GLuint EBO;
 		glGenBuffers(1, &EBO);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	size();
 
-    return 0;
+	return 0;
 }
 
 void size()
@@ -145,7 +145,7 @@ auto update() -> void
 
 auto draw() -> void
 {
-    glClearColor(0.0f, 0.2f, 0.2f, 1.0f);
+	glClearColor(0.0f, 0.2f, 0.2f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glUseProgram(gProgram);
@@ -155,7 +155,7 @@ auto draw() -> void
 	glUniformMatrix4fv(gWorldLoc, 1, false, world1.m);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
-	mat4 world2 = mat4::translate(0.0f, -1.0f, 0.0f) * mat4::scale(10.0f, 0.1f, 10.0f);
+	mat4 world2 = mat4::scale(6.0f, 0.1f, 6.0f) * mat4::translate(0.0f, -0.5f, 0.0f);
 	glUniformMatrix4fv(gWorldLoc, 1, false, world2.m);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 }

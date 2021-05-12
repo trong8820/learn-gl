@@ -90,7 +90,7 @@ inline mat4 mat4::perspective(float fov, float aspect, float near, float far)
         (2.0f*near)/(r-l), 0.0f, 0.0f, 0.0f,
         0.0f, (2.0f*near)/(t-b), 0.0f, 0.0f,
         (r+l)/(r-l), (t+b)/(t-b), -(far+near)/(far-near), -1.0f,
-        0.0f, 0.0f, -(2.0f*far*near)/(far-near), 0.0f 
+        0.0f, 0.0f, -(2.0f*far*near)/(far-near), 0.0f
     };
 }
 
@@ -98,6 +98,24 @@ inline constexpr mat4 operator*(mat4 const& lhs, mat4 const& rhs)
 {
     return mat4
     {
-        
+        lhs.m[0] * rhs.m[0] + lhs.m[1] * rhs.m[4] + lhs.m[2] * rhs.m[8] +  lhs.m[3] * rhs.m[12],
+        lhs.m[0] * rhs.m[1] + lhs.m[1] * rhs.m[5] + lhs.m[2] * rhs.m[9] +  lhs.m[3] * rhs.m[13],
+        lhs.m[0] * rhs.m[2] + lhs.m[1] * rhs.m[6] + lhs.m[2] * rhs.m[10] + lhs.m[3] * rhs.m[14],
+        lhs.m[0] * rhs.m[3] + lhs.m[1] * rhs.m[7] + lhs.m[2] * rhs.m[11] + lhs.m[3] * rhs.m[15],
+
+        lhs.m[4] * rhs.m[0] + lhs.m[5] * rhs.m[4] + lhs.m[6] * rhs.m[8] +  lhs.m[7] * rhs.m[12],
+        lhs.m[4] * rhs.m[1] + lhs.m[5] * rhs.m[5] + lhs.m[6] * rhs.m[9] + lhs.m[7] * rhs.m[13],
+        lhs.m[4] * rhs.m[2] + lhs.m[5] * rhs.m[6] + lhs.m[6] * rhs.m[10] + lhs.m[7] * rhs.m[14],
+        lhs.m[4] * rhs.m[3] + lhs.m[5] * rhs.m[7] + lhs.m[6] * rhs.m[11] + lhs.m[7] * rhs.m[15],
+
+        lhs.m[8] * rhs.m[0] + lhs.m[9] * rhs.m[4] + lhs.m[10] * rhs.m[8] +  lhs.m[11] * rhs.m[12],
+        lhs.m[8] * rhs.m[1] + lhs.m[9] * rhs.m[5] + lhs.m[10] * rhs.m[9] + lhs.m[11] * rhs.m[13],
+        lhs.m[8] * rhs.m[2] + lhs.m[9] * rhs.m[6] + lhs.m[10] * rhs.m[10] + lhs.m[11] * rhs.m[14],
+        lhs.m[8] * rhs.m[3] + lhs.m[9] * rhs.m[7] + lhs.m[10] * rhs.m[11] + lhs.m[11] * rhs.m[15],
+
+        lhs.m[12] * rhs.m[0] + lhs.m[13] * rhs.m[4] + lhs.m[14] * rhs.m[8] +  lhs.m[15] * rhs.m[12],
+        lhs.m[12] * rhs.m[1] + lhs.m[13] * rhs.m[5] + lhs.m[14] * rhs.m[9] + lhs.m[15] * rhs.m[13],
+        lhs.m[12] * rhs.m[2] + lhs.m[13] * rhs.m[6] + lhs.m[14] * rhs.m[10] + lhs.m[15] * rhs.m[14],
+        lhs.m[12] * rhs.m[3] + lhs.m[13] * rhs.m[7] + lhs.m[14] * rhs.m[11] + lhs.m[15] * rhs.m[15]
     };
 }
