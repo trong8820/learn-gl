@@ -1,5 +1,12 @@
 #include "entry.h"
 
+void window_size_callback(GLFWwindow* window, int width, int height)
+{
+	gWidth = width;
+	gHeight = height;
+    size();
+}
+
 auto run() -> int
 {
 	if (glfwInit() == GLFW_FALSE) return EXIT_FAILURE;
@@ -20,6 +27,8 @@ auto run() -> int
 			std::cout << "GLFW Error: " << error << " - " << description << "\n";
 		});
 #endif
+
+	glfwWindowHint(GLFW_SAMPLES, 4);
 
 	auto pWindow = glfwCreateWindow(800, 600, "Learn GL", nullptr, nullptr);
 	if (pWindow == nullptr) return EXIT_FAILURE;
@@ -50,6 +59,7 @@ auto run() -> int
 	}
 
 	init();
+	auto prevWindowSizeCallback = glfwSetWindowSizeCallback(pWindow, window_size_callback);
 
 	glfwSwapInterval(1);
 	while (glfwWindowShouldClose(pWindow) == GLFW_FALSE)
@@ -60,6 +70,8 @@ auto run() -> int
 		glfwSwapBuffers(pWindow);
 		glfwPollEvents();
 	}
+
+	glfwSetWindowSizeCallback(pWindow, prevWindowSizeCallback);
 
 	glfwDestroyWindow(pWindow);
 	glfwTerminate();

@@ -68,7 +68,7 @@ https://www.khronos.org/files/opengl46-quick-reference-card.pdf
 |1|```gl?```|Lấy ngược ra các thông tin buffer, texture, depth, stencil, framebuffer|
 |1|```glColorMask```|Giới hạn kênh mầu sẽ được viết ra tại Framebuffer|
 
-|ID|Application|
+|ID|Example|
 |-|-|
 |1|Shadow Mapping|
 |1|Shadow Volumes|
@@ -99,3 +99,5 @@ https://www.khronos.org/files/opengl46-quick-reference-card.pdf
 |1|Bunnylod|
 |1|Denoise|
 |1|Bokeh|
+|1|Billboards|
+|1|Lights|

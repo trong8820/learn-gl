@@ -14,6 +14,7 @@ int gHeight{ 0 };
 int run();
 
 bool init();
+void size();
 void update();
 void draw();
 
