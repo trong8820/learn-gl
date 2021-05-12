@@ -16,6 +16,8 @@ struct mat4
 
 };
 
+constexpr mat4 operator*(mat4 const& lhs, mat4 const& rhs);
+
 #include "mat4.inl"
 
 #endif // MAT4_H_

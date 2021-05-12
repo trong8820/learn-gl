@@ -1,3 +1,5 @@
+// Shadow mapping
+
 #include "macros.h"
 #include "entry.h"
 
@@ -139,8 +141,6 @@ void size()
 auto update() -> void
 {
 	gAngle++;
-	mat4 world = mat4::rotate(0.0f, 1.0f, 0.0f, gAngle * (PI/180.0f));
-	glUniformMatrix4fv(gWorldLoc, 1, false, world.m);
 }
 
 auto draw() -> void
@@ -150,6 +150,13 @@ auto draw() -> void
 
 	glUseProgram(gProgram);
 	glBindVertexArray(gVAO);
+
+	mat4 world1 = mat4::rotate(0.0f, 1.0f, 0.0f, gAngle * (PI/180.0f));
+	glUniformMatrix4fv(gWorldLoc, 1, false, world1.m);
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+	mat4 world2 = mat4::translate(0.0f, -1.0f, 0.0f) * mat4::scale(10.0f, 0.1f, 10.0f);
+	glUniformMatrix4fv(gWorldLoc, 1, false, world2.m);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 }
 

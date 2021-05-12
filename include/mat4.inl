@@ -16,10 +16,10 @@ inline mat4 mat4::translate(float x, float y, float z)
 {
     return mat4
     {
-        1.0f, 0.0f, 0.0f, x,
-        0.0f, 1.0f, 0.0f, y,
-        0.0f, 0.0f, 1.0f, z,
-        0.0f, 0.0f, 0.0f, 1.0f
+        1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        x, y, z, 1.0f
     };
 }
 
@@ -91,5 +91,13 @@ inline mat4 mat4::perspective(float fov, float aspect, float near, float far)
         0.0f, (2.0f*near)/(t-b), 0.0f, 0.0f,
         (r+l)/(r-l), (t+b)/(t-b), -(far+near)/(far-near), -1.0f,
         0.0f, 0.0f, -(2.0f*far*near)/(far-near), 0.0f 
+    };
+}
+
+inline constexpr mat4 operator*(mat4 const& lhs, mat4 const& rhs)
+{
+    return mat4
+    {
+        
     };
 }
