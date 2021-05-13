@@ -90,6 +90,7 @@ https://www.khronos.org/files/opengl46-quick-reference-card.pdf
 |1|RSM|
 |1|POM|
 |1|MVS|
+|1|SSAO|
 |1|ASSAO|
 |1|SVT|
 |1|SSS|

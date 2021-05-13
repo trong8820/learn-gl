@@ -103,6 +103,7 @@ add_executable(${PROJECT_NAME}_15 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMA
 add_executable(${PROJECT_NAME}_16 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_16.cpp)
 
 add_executable(example_01 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_01.cpp)
+add_executable(example_02 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_02.cpp)
 
 # Data
 if (EXISTS ${CMAKE_SOURCE_DIR}/data)
