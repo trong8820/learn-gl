@@ -65,9 +65,11 @@ inline mat4 mat4::scale(float x, float y, float z)
 
 inline mat4 mat4::lookAt(vec3 pos, vec3 target, vec3 up)
 {
-    vec3 zaxis = (pos - target).normalize();
+    vec3 zaxis = (target - pos).normalize();
     vec3 xaxis = vec3::cross(zaxis, up).normalize();
     vec3 yaxis = vec3::cross(xaxis, zaxis);
+
+    zaxis = -zaxis;
 
     return mat4
     {
@@ -91,6 +93,17 @@ inline mat4 mat4::perspective(float fov, float aspect, float near, float far)
         0.0f, (2.0f*near)/(t-b), 0.0f, 0.0f,
         (r+l)/(r-l), (t+b)/(t-b), -(far+near)/(far-near), -1.0f,
         0.0f, 0.0f, -(2.0f*far*near)/(far-near), 0.0f
+    };
+}
+
+inline mat4 mat4::ortho(float width, float height, float near, float far)
+{
+    return mat4
+    {
+        2.0f/width, 0.0f, 0.0f, 0.0f,
+        0.0f, 2.0f/height, 0.0f, 0.0f,
+        0.0f, 0.0f, -2.0f/(far - near), 0.0f,
+        0.0f, 0.0f, -(far + near)/(far - near), 1.0f  
     };
 }
 

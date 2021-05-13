@@ -13,6 +13,7 @@ struct mat4
 
     static mat4 lookAt(vec3 pos, vec3 target, vec3 up);
     static mat4 perspective(float fov, float aspect, float near, float far);
+    static mat4 ortho(float width, float height, float near, float far);
 
 };
 
