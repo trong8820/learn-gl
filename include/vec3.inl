@@ -57,3 +57,13 @@ inline constexpr vec3 operator-(vec3 const& lhs, vec3 const& rhs)
 {
     return { lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z };
 }
+
+inline constexpr vec3 operator*(vec3 const& lhs, vec3 const& rhs)
+{
+    return { lhs.x * rhs.x, lhs.y * rhs.y, lhs.z * rhs.z };
+}
+
+inline constexpr vec3 operator*(vec3 const& lhs, float const& rhs)
+{
+    return { lhs.x * rhs, lhs.y * rhs, lhs.z * rhs };
+}

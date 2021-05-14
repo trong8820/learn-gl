@@ -134,6 +134,7 @@ auto init() -> bool
     glGenBuffers(1, &gTBO);
     glBindBuffer(GL_ARRAY_BUFFER, gTBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(data), nullptr, GL_STATIC_READ);
+	glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, gTBO);
 
 	// Pass Matrix see: https://learnopengl.com/Advanced-OpenGL/Instancing
 	glGenVertexArrays(1, &gVAO);
@@ -209,6 +210,11 @@ auto init() -> bool
 	return true;
 }
 
+void size()
+{
+	//std::cout << "size " << gWidth << " " << gHeight << std::endl;
+}
+
 auto update() -> void
 {
 
@@ -224,7 +230,6 @@ auto draw() -> void
 	glUseProgram(gFeedbackProgram);
 	glBindVertexArray(gFeedbackVAO);
     glEnable(GL_RASTERIZER_DISCARD);
-        glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, gTBO);
         glBeginTransformFeedback(GL_POINTS);
         	glDrawArrays(GL_POINTS, 0, 5);
 		glEndTransformFeedback();

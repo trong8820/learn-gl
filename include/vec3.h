@@ -26,6 +26,9 @@ constexpr bool operator==(vec3 const& lhs, vec3 const& rhs);
 constexpr bool operator!=(vec3 const& lhs, vec3 const& rhs);
 constexpr vec3 operator+(vec3 const& lhs, vec3 const& rhs);
 constexpr vec3 operator-(vec3 const& lhs, vec3 const& rhs);
+constexpr vec3 operator*(vec3 const& lhs, vec3 const& rhs);
+
+constexpr vec3 operator*(vec3 const& lhs, float const& rhs);
 
 #include "vec3.inl"
 
