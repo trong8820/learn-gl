@@ -148,7 +148,7 @@ void main()
     int x = encoded / samples;
     int y = encoded % samples;
 
-    vec2 pos = vec2(x, y) / float(samples);
+    vec2 pos = vec2(x, y) / float(samples - 1.0);
     int s = textureLod(cell, pos, 0.0).r;
 
     // [0 .. 11] [0 .. 15]
@@ -178,7 +178,7 @@ void main()
 )";
 
 
-const int SAMPLES = 16;
+const int SAMPLES = 256;
 
 GLuint gScalarProgram;
 GLuint gScalarTFO;
@@ -411,7 +411,7 @@ auto init() -> bool
 	size();
 
     glEnable(GL_PROGRAM_POINT_SIZE);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     //glEnable(GL_MULTISAMPLE);
 	//glEnable(GL_DEPTH_TEST);
 
@@ -439,9 +439,10 @@ auto update() -> void
     positions[7] = pos3.y;
     positions[8] = 0.25f;
 
-    positions[0] = 0.5f;
+    /*positions[0] = 0.5f;
     positions[1] = 0.5f;
-    positions[2] = 0.4f;
+    //positions[2] = 0.4f;
+    positions[2] = gTime * 0.01f;
 
     positions[3] = -100.0f;
     positions[4] = -100.0f;
@@ -449,7 +450,7 @@ auto update() -> void
 
     positions[6] = -100.0f;
     positions[7] = -100.0f;
-    positions[8] = 0.1f;
+    positions[8] = 0.1f;*/
 }
 
 auto draw() -> void
