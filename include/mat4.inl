@@ -103,7 +103,7 @@ inline mat4 mat4::ortho(float width, float height, float near, float far)
         2.0f/width, 0.0f, 0.0f, 0.0f,
         0.0f, 2.0f/height, 0.0f, 0.0f,
         0.0f, 0.0f, -2.0f/(far - near), 0.0f,
-        0.0f, 0.0f, -(far + near)/(far - near), 1.0f  
+        0.0f, 0.0f, -(far + near)/(far - near), 1.0f
     };
 }
 
