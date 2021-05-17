@@ -110,13 +110,24 @@ uniform isampler2D table;
 
 void main()
 {
-    int x = gl_VertexID / samples;
-    int y = gl_VertexID % samples;
+    int encoded = gl_VertexID;
+    int vertex = encoded % 6;
+    encoded = encoded / 6;
+
+    int x = encoded / samples;
+    int y = encoded % samples;
 
     vec2 pos = vec2(x, y) / float(samples);
     int s = textureLod(cell, pos, 0.0).r;
-    gl_Position = vec4(pos - vec2(0.5, 0.5), 0.0f, 1.0);
-    gl_PointSize = s == 0 ? 4.0 : 2.0;
+
+    int edge = textureLod(table, vec2(vertex/5.0, vertex/15.0), 0.0).r;
+    if (edge < 0)
+    {
+        gl_Position = vec4(0); 
+    } else 
+    {
+        gl_Position = vec4(pos - vec2(0.5, 0.5), 0.0f, 1.0);
+    }
 }
 )";
 
@@ -289,8 +300,6 @@ auto init() -> bool
         gMarchingProgram = GL_CHECK_RETURN(glCreateProgram());
         GL_CHECK(glAttachShader(gMarchingProgram, vertexShader));
         GL_CHECK(glAttachShader(gMarchingProgram, fragmentShader));
-        //const GLchar* feedbackVaryings[] = { "outCell" };
-        //glTransformFeedbackVaryings(gCellProgram, 1, feedbackVaryings, GL_SEPARATE_ATTRIBS);
         GL_CHECK(glLinkProgram(gMarchingProgram));
 
         GL_CHECK(glDeleteShader(vertexShader));
@@ -351,10 +360,22 @@ auto init() -> bool
     glUseProgram(gMarchingProgram);
     glUniform1i(glGetUniformLocation(gMarchingProgram, "samples"), SAMPLES - 1);
     glUniform1i(glGetUniformLocation(gMarchingProgram, "cell"), 1);
+    glUniform1i(glGetUniformLocation(gMarchingProgram, "table"), 2);
+
+    GLuint tableTexture;
+    glGenTextures(1, &tableTexture);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, tableTexture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexStorage2D(GL_TEXTURE_2D, 1, GL_R32I, 16, 6);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 16, 6, GL_RED_INTEGER, GL_INT, table);
 
 	size();
 
-    glEnable(GL_PROGRAM_POINT_SIZE);
+    //glEnable(GL_PROGRAM_POINT_SIZE);
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     //glEnable(GL_MULTISAMPLE);
 	//glEnable(GL_DEPTH_TEST);
@@ -418,8 +439,9 @@ auto draw() -> void
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, gCellTFBO);
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, SAMPLES - 1, SAMPLES - 1, GL_RED_INTEGER, GL_INT, NULL);
 
+    glActiveTexture(GL_TEXTURE2);
     glUseProgram(gMarchingProgram);
-    glDrawArrays(GL_POINTS, 0, (SAMPLES - 1) * (SAMPLES - 1));
+    glDrawArrays(GL_TRIANGLES, 0, (SAMPLES - 1) * (SAMPLES - 1) * 2 * 3); // cells * triangles per cell * vertices per triangle
 }
 
 auto main() -> int
