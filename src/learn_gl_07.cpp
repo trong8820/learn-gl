@@ -415,6 +415,11 @@ auto init() -> bool
     return true;
 }
 
+void size()
+{
+	//std::cout << "size " << gWidth << " " << gHeight << std::endl;
+}
+
 auto update() -> void
 {
     gTime += 1.0/60.0f;

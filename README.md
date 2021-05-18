@@ -69,14 +69,14 @@ https://www.khronos.org/files/opengl46-quick-reference-card.pdf
 |1|```glColorMask```|Giới hạn kênh mầu sẽ được viết ra tại Framebuffer|
 |1|HDR|
 
-|ID|Example|
-|-|-|
-|1|Shadow Mapping|
+|ID|Example|No|
+|-|-|-|
+|1|Shadow Mapping|e_01|
 |1|Shadow Volumes|
-|1|Bloom|
+|1|Bloom|l_07|
 |1|Deferred Shading|
-|1|Occlusion Query|
-|1|Metaballs|
+|1|Occlusion Query|e_02|
+|1|Metaballs|e_03|
 |1|Terrain Rendering|
 |1|Skybox|
 |1|Advanced Shading Techniques|
@@ -102,3 +102,4 @@ https://www.khronos.org/files/opengl46-quick-reference-card.pdf
 |1|Bokeh|
 |1|Billboards|
 |1|Lights|
+|1|Animation|
