@@ -1,6 +1,6 @@
 #include "vec2.h"
 
-#include <cmath>
+#include <math.h>
 
 inline constexpr vec2::vec2(float x, float y) :
     x(x), y(y)
@@ -14,7 +14,7 @@ inline float vec2::dot(vec2 const& lhs, vec2 const& rhs)
 
 inline vec2 vec2::normalize()
 {
-    float length = std::sqrt(x*x + y*y);
+    float length = sqrtf(x*x + y*y);
     return vec2(x/length, y/length);
 }
 

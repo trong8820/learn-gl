@@ -1,6 +1,6 @@
 #include "mat4.h"
 
-#include <cmath>
+#include <math.h>
 
 #include "vec3.h"
 
@@ -25,11 +25,11 @@ inline mat4 mat4::translate(float x, float y, float z)
 
 inline mat4 mat4::rotate(float x, float y, float z, float angle)
 {
-    float s = std::sin(angle / 2.0f);
+    float s = sinf(angle / 2.0f);
     float qx = x * s;
     float qy = y * s;
     float qz = z * s;
-    float qw = std::cos(angle / 2.0f);
+    float qw = cosf(angle / 2.0f);
 
     float xx = qx * qx;
     float xy = qx * qy;
@@ -82,7 +82,7 @@ inline mat4 mat4::lookAt(vec3 pos, vec3 target, vec3 up)
 
 inline mat4 mat4::perspective(float fov, float aspect, float near, float far)
 {
-    float t = std::tan(fov / 2.0f) * near;
+    float t = tanf(fov / 2.0f) * near;
     float b = -t;
     float r = t * aspect;
     float l = -r;
@@ -130,5 +130,19 @@ inline constexpr mat4 operator*(mat4 const& lhs, mat4 const& rhs)
         lhs.m[12] * rhs.m[1] + lhs.m[13] * rhs.m[5] + lhs.m[14] * rhs.m[9] + lhs.m[15] * rhs.m[13],
         lhs.m[12] * rhs.m[2] + lhs.m[13] * rhs.m[6] + lhs.m[14] * rhs.m[10] + lhs.m[15] * rhs.m[14],
         lhs.m[12] * rhs.m[3] + lhs.m[13] * rhs.m[7] + lhs.m[14] * rhs.m[11] + lhs.m[15] * rhs.m[15]
+    };
+}
+
+inline constexpr vec4 operator*(mat4 const& lhs, vec4 const& rhs)
+{
+    return vec4
+    {
+        lhs.m[0] * rhs.x + lhs.m[1] * rhs.y + lhs.m[2] * rhs.z +  lhs.m[3] * rhs.w,
+
+        lhs.m[4] * rhs.x + lhs.m[5] * rhs.y + lhs.m[6] * rhs.z +  lhs.m[7] * rhs.w,
+
+        lhs.m[8] * rhs.x + lhs.m[9] * rhs.y + lhs.m[10] * rhs.z +  lhs.m[11] * rhs.w,
+
+        lhs.m[12] * rhs.x + lhs.m[13] * rhs.y + lhs.m[14] * rhs.z +  lhs.m[15] * rhs.w
     };
 }

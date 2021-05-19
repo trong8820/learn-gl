@@ -1,6 +1,8 @@
 #ifndef MAT4_H_
 #define MAT4_H_
 
+#include "vec4.h"
+
 struct mat4
 {
     float m[16];
@@ -18,6 +20,7 @@ struct mat4
 };
 
 constexpr mat4 operator*(mat4 const& lhs, mat4 const& rhs);
+constexpr vec4 operator*(mat4 const& lhs, vec4 const& rhs);
 
 #include "mat4.inl"
 

@@ -1,6 +1,6 @@
 #include "vec3.h"
 
-#include <cmath>
+#include <math.h>
 
 inline constexpr vec3::vec3(float x, float y, float z) :
     x(x), y(y), z(z)
@@ -24,7 +24,7 @@ inline float vec3::dot(vec3 const& lhs, vec3 const& rhs)
 
 inline vec3 vec3::normalize()
 {
-    float length = std::sqrt(x*x + y*y + z*z);
+    float length = sqrtf(x*x + y*y + z*z);
     return vec3(x/length, y/length, z/length);
 }
 

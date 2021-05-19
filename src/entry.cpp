@@ -7,6 +7,11 @@ void window_size_callback(GLFWwindow* window, int width, int height)
     size();
 }
 
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    on_key(key, action);
+}
+
 auto run() -> int
 {
 	if (glfwInit() == GLFW_FALSE) return EXIT_FAILURE;
@@ -60,6 +65,7 @@ auto run() -> int
 
 	init();
 	auto prevWindowSizeCallback = glfwSetWindowSizeCallback(pWindow, window_size_callback);
+	auto prevKeyCallback = glfwSetKeyCallback(pWindow, key_callback);
 
 	glfwSwapInterval(1);
 	while (glfwWindowShouldClose(pWindow) == GLFW_FALSE)
@@ -71,6 +77,7 @@ auto run() -> int
 		glfwPollEvents();
 	}
 
+	glfwSetKeyCallback(pWindow, prevKeyCallback);
 	glfwSetWindowSizeCallback(pWindow, prevWindowSizeCallback);
 
 	glfwDestroyWindow(pWindow);

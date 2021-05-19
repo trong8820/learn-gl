@@ -18,5 +18,7 @@ void size();
 void update();
 void draw();
 
+void on_key(int key, int action);
+
 #endif // ENTRY_H__
 
