@@ -16,6 +16,7 @@ struct PerInstanceData
 {
     vec2 offset;
     float scale;
+    float padding;
 };
 
 layout (location = 0) in vec2 aPos;
@@ -253,14 +254,15 @@ auto draw() -> void
     glBindBuffer(GL_UNIFORM_BUFFER, gUBO);
     //float *data = static_cast<float*>(glMapBufferRange(GL_UNIFORM_BUFFER, 0, sizeof(float)*4 * 3, GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_WRITE_BIT));
     float *data = static_cast<float*>(glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY));
-    data[0] = 1.0f;
-    data[1] = 2.0f;
-    data[2] = 3.0f;
-    data[3] = 4.0f;
-    //data[3] = 80.0f;
-    //data[4] = 80.0f;
-    //data[5] = 80.0f;
-    //data[6] = 80.0f;
+    data[0] = 20.0f;
+    data[1] = 0.0f;
+    data[2] = 1.0f;
+    data[3] = 0.0f;
+
+    data[4] = -20.0f;
+    data[5] = 5.0f;
+    data[6] = 1.0f;
+    data[7] = 0.0f;
 
     //data[3] = 2.0f;
     //data[4] = 1.0f;
