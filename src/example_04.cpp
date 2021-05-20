@@ -12,12 +12,12 @@ const float PI = 3.14159265358979f;
 const char *vertexShaderSource = R"(
 #version 410 core
 
-struct PerInstanceData
+/*struct PerInstanceData
 {
     vec2 offset;
     float scale;
     float padding;
-};
+};*/
 
 layout (location = 0) in vec2 aPos;
 
@@ -25,14 +25,24 @@ uniform mat4 world;
 uniform mat4 view;
 uniform mat4 proj;
 
-uniform InstanceData
+uniform float instance[765]; // 255*3 : offsetX, offsetY, scale
+
+/*uniform InstanceData
 {
-    PerInstanceData instance[256];
-};
+    PerInstanceData instance[255];
+};*/
 
 void main()
 {
-    vec2 pos = aPos*instance[gl_InstanceID].scale + instance[gl_InstanceID].offset;
+    // int a = 0;
+    // instance[a]; Failed? // https://community.khronos.org/t/odd-issue-with-gl-instanceid/66035
+    //PerInstanceData perInstance = instance[0];
+    //vec2 pos = aPos*perInstance.scale + perInstance.offset;
+
+    int instanceID = gl_InstanceID*3;
+    vec2 offset = vec2(instance[instanceID + 0], instance[instanceID + 1]);
+    float scale = instance[instanceID + 2];
+    vec2 pos = aPos*scale + offset;
 	gl_Position = proj * view * world * vec4(pos.x, 0.0, -pos.y, 1.0);
 }
 )";
@@ -48,15 +58,16 @@ void main()
 }
 )";
 
-const int CLIPMAP_SIZE_W = 64;
-const int CLIPMAP_SIZE_H = 64;
+const int CLIPMAP_SIZE_W = 4;
+const int CLIPMAP_SIZE_H = 4;
 const int CLIPMAP_LEVELS = 10;
 const float CLIPMAP_SCALE = 0.25f;
 
 GLuint gProgram;
 GLuint gVAO;
+GLint gInstanceLoc;
 
-GLuint gUBO;
+//GLuint gUBO;
 
 GLint gWorldLoc;
 GLint gViewLoc;
@@ -102,8 +113,8 @@ auto init() -> bool
         for (size_t j = 0; j < CLIPMAP_SIZE_W; j++)
         {
             size_t id = i*CLIPMAP_SIZE_W + j;
-            vertices[id*2 + 0] = static_cast<float>(j) - CLIPMAP_SIZE_W / 2.0f;
-            vertices[id*2 + 1] = static_cast<float>(i) - CLIPMAP_SIZE_H / 2.0f;
+            vertices[id*2 + 0] = static_cast<float>(j) - (CLIPMAP_SIZE_W - 1.0f) / 2.0f;
+            vertices[id*2 + 1] = static_cast<float>(i) - (CLIPMAP_SIZE_H - 1.0f) / 2.0f;
         }
     }
     
@@ -143,18 +154,19 @@ auto init() -> bool
     delete [] indices;
     delete [] vertices;
 
-    glGenBuffers(1, &gUBO);
-    glBindBuffer(GL_UNIFORM_BUFFER, gUBO);
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(float)*4 * 3, NULL, GL_STREAM_DRAW);
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    //glGenBuffers(1, &gUBO);
+    //glBindBuffer(GL_UNIFORM_BUFFER, gUBO);
+    //glBufferData(GL_UNIFORM_BUFFER, sizeof(float)*4 * 255, NULL, GL_DYNAMIC_DRAW);
+    //glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     glUseProgram(gProgram);
-    glUniformBlockBinding(gProgram, glGetUniformBlockIndex(gProgram, "InstanceData"), 0);
+    //glUniformBlockBinding(gProgram, glGetUniformBlockIndex(gProgram, "InstanceData"), 0);
 	gWorldLoc = glGetUniformLocation(gProgram, "world");
 	gViewLoc = glGetUniformLocation(gProgram, "view");
 	gProjLoc = glGetUniformLocation(gProgram, "proj");
 
-    glBindBufferBase(GL_UNIFORM_BUFFER, 0, gUBO); 
+    //glBindBufferBase(GL_UNIFORM_BUFFER, 0, gUBO); 
+    gInstanceLoc = glGetUniformLocation(gProgram, "instance");
 
     //glEnable(GL_PROGRAM_POINT_SIZE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -241,7 +253,7 @@ auto update() -> void
         glUniformMatrix4fv(gViewLoc, 1, false, view.m);
     }
 }
-
+float data[3* 255];
 auto draw() -> void
 {
 	glViewport(0, 0, gWidth, gHeight);
@@ -251,28 +263,140 @@ auto draw() -> void
 	glUseProgram(gProgram);
 	glBindVertexArray(gVAO);
 
-    glBindBuffer(GL_UNIFORM_BUFFER, gUBO);
-    //float *data = static_cast<float*>(glMapBufferRange(GL_UNIFORM_BUFFER, 0, sizeof(float)*4 * 3, GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_WRITE_BIT));
-    float *data = static_cast<float*>(glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY));
-    data[0] = 20.0f;
-    data[1] = 0.0f;
+    int w = CLIPMAP_SIZE_W - 1;
+    int h = CLIPMAP_SIZE_H - 1;
+    data[0] = -w/2.0f;
+    data[1] = -h/2.0f;
     data[2] = 1.0f;
-    data[3] = 0.0f;
 
-    data[4] = -20.0f;
-    data[5] = 5.0f;
-    data[6] = 1.0f;
-    data[7] = 0.0f;
+    data[3] = -w/2.0f;
+    data[4] = +h/2.0f;
+    data[5] = 1.0f;
 
-    //data[3] = 2.0f;
-    //data[4] = 1.0f;
-    //data[5] = 1.0f;
-    glUnmapBuffer(GL_UNIFORM_BUFFER);
+    data[6] = +w/2.0f;
+    data[7] = -h/2.0f;
+    data[8] = 1.0f;
+
+    data[9] = +w/2.0f;
+    data[10] = +h/2.0f;
+    data[11] = 1.0f;
+
+    int dataId = 12;
+    float offsetX = w;
+    float offsetY = h;
+    for (int l = 0; l < 6; l++)
+    {
+        float lW = w*powf(2.0f, l);
+        float lH = h*powf(2.0f, l);
+        offsetX += lW;
+        offsetY += lH;
+
+        data[dataId + 0] = offsetX - lW / 2.0f;
+        data[dataId + 1] = offsetY - lH / 2.0f;
+        data[dataId + 2] = powf(2.0f, l);
+        data[dataId + 3] = 0.0f;
+        dataId += 3;
+
+        data[dataId + 0] = -(offsetX - lW / 2.0f);
+        data[dataId + 1] = offsetY - lH / 2.0f;
+        data[dataId + 2] = powf(2.0f, l);
+        data[dataId + 3] = 0.0f;
+        dataId += 3;
+
+        data[dataId + 0] = offsetX - lW / 2.0f;
+        data[dataId + 1] = -(offsetY - lH / 2.0f);
+        data[dataId + 2] = powf(2.0f, l);
+        data[dataId + 3] = 0.0f;
+        dataId += 3;
+
+        data[dataId + 0] = -(offsetX - lW / 2.0f);
+        data[dataId + 1] = -(offsetY - lH / 2.0f);
+        data[dataId + 2] = powf(2.0f, l);
+        data[dataId + 3] = 0.0f;
+        dataId += 3;
+    }
+
+    offsetX = w;
+    offsetY = h/2.0f;
+    for (int l = 0; l < 6; l++)
+    {
+        float lW = w*powf(2.0f, l);
+        float lH = h*powf(2.0f, l);
+        offsetX += lW;
+        offsetY += lH / 2.0f;
+
+        data[dataId + 0] = offsetX - lW / 2.0f;
+        data[dataId + 1] = offsetY - lH / 2.0f;
+        data[dataId + 2] = powf(2.0f, l);
+        data[dataId + 3] = 0.0f;
+        dataId += 3;
+
+        data[dataId + 0] = -(offsetX - lW / 2.0f);
+        data[dataId + 1] = offsetY - lH / 2.0f;
+        data[dataId + 2] = powf(2.0f, l);
+        data[dataId + 3] = 0.0f;
+        dataId += 3;
+
+        data[dataId + 0] = offsetX - lW / 2.0f;
+        data[dataId + 1] = -(offsetY - lH / 2.0f);
+        data[dataId + 2] = powf(2.0f, l);
+        data[dataId + 3] = 0.0f;
+        dataId += 3;
+
+        data[dataId + 0] = -(offsetX - lW / 2.0f);
+        data[dataId + 1] = -(offsetY - lH / 2.0f);
+        data[dataId + 2] = powf(2.0f, l);
+        data[dataId + 3] = 0.0f;
+        dataId += 3;
+    }
+
+    offsetX = w/2.0f;
+    offsetY = h;
+    for (int l = 0; l < 6; l++)
+    {
+        float lW = w*powf(2.0f, l);
+        float lH = h*powf(2.0f, l);
+        offsetX += lW / 2.0f;
+        offsetY += lH;
+
+        data[dataId + 0] = offsetX - lW / 2.0f;
+        data[dataId + 1] = offsetY - lH / 2.0f;
+        data[dataId + 2] = powf(2.0f, l);
+        data[dataId + 3] = 0.0f;
+        dataId += 3;
+
+        data[dataId + 0] = -(offsetX - lW / 2.0f);
+        data[dataId + 1] = offsetY - lH / 2.0f;
+        data[dataId + 2] = powf(2.0f, l);
+        data[dataId + 3] = 0.0f;
+        dataId += 3;
+
+        data[dataId + 0] = offsetX - lW / 2.0f;
+        data[dataId + 1] = -(offsetY - lH / 2.0f);
+        data[dataId + 2] = powf(2.0f, l);
+        data[dataId + 3] = 0.0f;
+        dataId += 3;
+
+        data[dataId + 0] = -(offsetX - lW / 2.0f);
+        data[dataId + 1] = -(offsetY - lH / 2.0f);
+        data[dataId + 2] = powf(2.0f, l);
+        data[dataId + 3] = 0.0f;
+        dataId += 3;
+    }
+
+    //glBindBuffer(GL_UNIFORM_BUFFER, gUBO);
+    //glBufferData(GL_UNIFORM_BUFFER, sizeof(data), NULL, GL_DYNAMIC_DRAW);
+    //glBufferData(GL_UNIFORM_BUFFER, sizeof(data), data, GL_DYNAMIC_DRAW);
+    //float *data = static_cast<float*>(glMapBufferRange(GL_UNIFORM_BUFFER, 0, sizeof(float)*4 * 3, GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_WRITE_BIT));
+    //float *data = static_cast<float*>(glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY));
+    //glUnmapBuffer(GL_UNIFORM_BUFFER);
+
+    glUniform1fv(gInstanceLoc, 765, data);
 
 	//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
     //glDrawElements(GL_TRIANGLE_STRIP, (CLIPMAP_SIZE_W*2 + 2)*(CLIPMAP_SIZE_H - 1), GL_UNSIGNED_INT,  0);
     //glDrawArrays(GL_POINTS, 0, CLIPMAP_SIZE*CLIPMAP_SIZE * 2);
-    glDrawElementsInstanced(GL_TRIANGLE_STRIP, (CLIPMAP_SIZE_W*2 + 2)*(CLIPMAP_SIZE_H - 1), GL_UNSIGNED_INT,  0, 2);
+    glDrawElementsInstanced(GL_TRIANGLE_STRIP, (CLIPMAP_SIZE_W*2 + 2)*(CLIPMAP_SIZE_H - 1), GL_UNSIGNED_INT,  0, 255);
 }
 
 void on_key(int key, int action)
