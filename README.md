@@ -77,10 +77,11 @@ https://www.khronos.org/files/opengl46-quick-reference-card.pdf
 |1|Deferred Shading|
 |1|Occlusion Query|e_02|
 |1|Metaballs|e_03|
-|1|Terrain Rendering|
-|1|Skybox|
+|1|Terrain Rendering|e_04 [x]|
+|1|Skybox|e_05|
 |1|Advanced Shading Techniques|
 |1|Particle Flow Simulation|
+|1|Particles|
 |1|Ocean Rendering|
 |1|Displacement mapping|
 |1|Raymarch|
@@ -96,7 +97,6 @@ https://www.khronos.org/files/opengl46-quick-reference-card.pdf
 |1|SSS|
 |1|Vector Display|
 |1|N Body|
-|1|Particles|
 |1|Bunnylod|
 |1|Denoise|
 |1|Bokeh|
