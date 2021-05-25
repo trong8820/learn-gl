@@ -115,4 +115,8 @@ add_custom_command(TARGET  ${PROJECT_NAME}_08 PRE_BUILD
 				   COMMAND ${CMAKE_COMMAND} -E copy_directory
 				   ${CMAKE_SOURCE_DIR}/data $<TARGET_FILE_DIR:${PROJECT_NAME}_08>/data
 )
+add_custom_command(TARGET  example_05 PRE_BUILD
+				   COMMAND ${CMAKE_COMMAND} -E copy_directory
+				   ${CMAKE_SOURCE_DIR}/data $<TARGET_FILE_DIR:example_05>/data
+)
 endif()

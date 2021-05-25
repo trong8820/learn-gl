@@ -1,5 +1,8 @@
 // Skybox - Cubemaps
 
+#include <fstream>
+#include <vector>
+
 #include "macros.h"
 #include "entry.h"
 
@@ -39,25 +42,39 @@ unsigned int indices[] =
 	1, 7, 5
 };
 
-const char* shadownVertexShaderSource = R"(
+const char* skyboxVertexShaderSource = R"(
 #version 410 core
 
 layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aColor;
 
-uniform mat4 lightSpace;
 uniform mat4 world;
+uniform mat4 view;
+uniform mat4 proj;
+
+out vec3 vTexCoords;
+out vec3 vColor;
 
 void main()
 {
-	gl_Position = lightSpace * world * vec4(aPos, 1.0);
+	vTexCoords = aPos;
+	vec4 pos = proj * view * vec4(aPos, 1.0);
+	gl_Position = pos.xyww;
 }
 )";
 
-const char* shadownFragmentShaderSource = R"(
+const char* skyboxFragmentShaderSource = R"(
 #version 410 core
+
+uniform samplerCube skybox;
+
+in vec3 vTexCoords;
+
+out vec4 FragColor;
 
 void main()
 {
+	FragColor = texture(skybox, vTexCoords);
 }
 )";
 
@@ -70,15 +87,12 @@ layout (location = 1) in vec3 aColor;
 uniform mat4 world;
 uniform mat4 view;
 uniform mat4 proj;
-uniform mat4 lightSpace;
 
-out vec4 vPosLightSpace;
 out vec3 vColor;
 
 void main()
 {
 	vColor = aColor;
-	vPosLightSpace = lightSpace * world * vec4(aPos, 1.0);
 	gl_Position = proj * view * world * vec4(aPos, 1.0);
 }
 )";
@@ -86,55 +100,65 @@ void main()
 const char *fragmentShaderSource = R"(
 #version 410 core
 
-uniform sampler2D shadowMap;
-
-in vec4 vPosLightSpace;
 in vec3 vColor;
 
 out vec4 FragColor;
 
 void main()
 {
-	vec3 projCoords = vPosLightSpace.xyz / vPosLightSpace.w;
-	projCoords = projCoords * 0.5 + 0.5;
-	float closestDepth = texture(shadowMap, projCoords.xy).r; 
-	float shadow = projCoords.z - 0.0001 > closestDepth ? 0.3 : 1.0;
-	FragColor = vec4(vColor*shadow, 1.0);
+	FragColor = vec4(vColor, 1.0);
 }
 )";
 
-GLuint gShadowProgram;
-GLint gShadowWorldLoc;
+GLuint gSkyboxProgram;
 
 GLuint gProgram;
 GLuint gVAO;
 
+GLuint gTexture;
+
 GLint gWorldLoc;
+GLuint gViewLoc;
+GLuint gSkyboxViewLoc;
+
 float gAngle = 0.0f;
 
-GLuint gDepthFBO;
-GLuint gDepthMap;
+void loadFace(GLenum target, const std::string& faceName)
+{
+	njInit();
+		std::ifstream ifs(faceName, std::ios::binary | std::ios::ate);
+		std::streamsize size = ifs.tellg();
+		ifs.seekg(0, std::ios::beg);
+
+		std::vector<char> buffer(size);
+		if (ifs.read(buffer.data(), size))
+		{
+			if (njDecode(buffer.data(), size) == NJ_OK)
+			{
+				glTexImage2D(target, 0, GL_RGB, njGetWidth(), njGetHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, njGetImage());
+			}
+		}
+
+		ifs.close();
+    njDone();
+}
 
 auto init() -> bool
 {
-    njInit();
-        // https://gist.github.com/ForeverZer0/b5c5b0f83a4a99d424989dc463c2f774
-    njDone();
-
 	//std::cout << "init " << gWidth << " " << gHeight << std::endl;
 	{
 		auto vertexShader = GL_CHECK_RETURN(glCreateShader(GL_VERTEX_SHADER));
-		GL_CHECK(glShaderSource(vertexShader, 1, &shadownVertexShaderSource, NULL));
+		GL_CHECK(glShaderSource(vertexShader, 1, &skyboxVertexShaderSource, NULL));
 		GL_CHECK(glCompileShader(vertexShader));
 
 		auto fragmentShader = GL_CHECK_RETURN(glCreateShader(GL_FRAGMENT_SHADER));
-		GL_CHECK(glShaderSource(fragmentShader, 1, &shadownFragmentShaderSource, NULL));
+		GL_CHECK(glShaderSource(fragmentShader, 1, &skyboxFragmentShaderSource, NULL));
 		GL_CHECK(glCompileShader(fragmentShader));
 
-		gShadowProgram = GL_CHECK_RETURN(glCreateProgram());
-		GL_CHECK(glAttachShader(gShadowProgram, vertexShader));
-		GL_CHECK(glAttachShader(gShadowProgram, fragmentShader));
-		GL_CHECK(glLinkProgram(gShadowProgram));
+		gSkyboxProgram = GL_CHECK_RETURN(glCreateProgram());
+		GL_CHECK(glAttachShader(gSkyboxProgram, vertexShader));
+		GL_CHECK(glAttachShader(gSkyboxProgram, fragmentShader));
+		GL_CHECK(glLinkProgram(gSkyboxProgram));
 
 		GL_CHECK(glDeleteShader(vertexShader));
 		GL_CHECK(glDeleteShader(fragmentShader));
@@ -175,58 +199,53 @@ auto init() -> bool
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-	glGenTextures(1, &gDepthMap);
-	glBindTexture(GL_TEXTURE_2D, gDepthMap);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glGenTextures(1, &gTexture);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, gTexture);
 
-	glGenFramebuffers(1, &gDepthFBO);
-	glBindFramebuffer(GL_FRAMEBUFFER, gDepthFBO);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, gDepthMap, 0);
-	glDrawBuffer(GL_NONE);
-	glReadBuffer(GL_NONE);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);  
+	loadFace(GL_TEXTURE_CUBE_MAP_POSITIVE_X, "data/right.jpg");
+	loadFace(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, "data/left.jpg");
+	loadFace(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, "data/top.jpg");
+	loadFace(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, "data/bottom.jpg");
+	loadFace(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, "data/front.jpg");
+	loadFace(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, "data/back.jpg");
 
-	glUseProgram(gShadowProgram);
-	GLint shadownLightSpaceLoc = glGetUniformLocation(gShadowProgram, "lightSpace");
-	gShadowWorldLoc = glGetUniformLocation(gShadowProgram, "world");
-	mat4 view = mat4::lookAt(vec3(-3.0f, 5.0, -1.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
-	mat4 proj = mat4::ortho(8.0f, 8.0f, 0.1f, 100.0f);
-	mat4 lightSpace = view*proj;
-	glUniformMatrix4fv(shadownLightSpaceLoc, 1, false, lightSpace.m);
-
-	glUseProgram(gProgram);
-	GLint lightSpaceLoc = glGetUniformLocation(gProgram, "lightSpace");
-	gWorldLoc = glGetUniformLocation(gProgram, "world");
-	glUniformMatrix4fv(lightSpaceLoc, 1, false, lightSpace.m);
-
-	size();
-
-	return 0;
-}
-
-void size()
-{
-	//std::cout << "size " << gWidth << " " << gHeight << std::endl;
-	glViewport(0, 0, gWidth, gHeight);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
 	glUseProgram(gProgram);
 	gWorldLoc = glGetUniformLocation(gProgram, "world");
-	GLint viewLoc = glGetUniformLocation(gProgram, "view");
-	GLint projLoc = glGetUniformLocation(gProgram, "proj");
+	gViewLoc = glGetUniformLocation(gProgram, "view");
 
-	mat4 world = mat4::identity;
-	mat4 view = mat4::lookAt(vec3(0.0f, 3.0, 3.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
-	mat4 proj = mat4::perspective(45.0f * (PI/180.0f), static_cast<float>(gWidth)/gHeight, 0.1f, 100.0f);
-	glUniformMatrix4fv(viewLoc, 1, false, view.m);
-	glUniformMatrix4fv(projLoc, 1, false, proj.m);
+	glUseProgram(gSkyboxProgram);		
+	gSkyboxViewLoc = glGetUniformLocation(gSkyboxProgram, "view");
+
+	on_size();
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_DEPTH_TEST);
+
+	return 0;
+}
+
+void on_size()
+{
+	//std::cout << "size " << gWidth << " " << gHeight << std::endl;
+	
+	glUseProgram(gProgram);
+	GLint viewLoc = glGetUniformLocation(gProgram, "view");
+	GLint projLoc = glGetUniformLocation(gProgram, "proj");
+
+	mat4 world = mat4::identity;
+	mat4 proj = mat4::perspective(45.0f * (PI/180.0f), static_cast<float>(gWidth)/gHeight, 0.1f, 100.0f);
+	glUniformMatrix4fv(projLoc, 1, false, proj.m);
+
+	glUseProgram(gSkyboxProgram);
+	glUniformMatrix4fv(glGetUniformLocation(gSkyboxProgram, "world"), 1, false, world.m);
+	glUniformMatrix4fv(glGetUniformLocation(gSkyboxProgram, "proj"), 1, false, proj.m);
 }
 
 void on_key(int key, int action)
@@ -241,23 +260,11 @@ auto update() -> void
 
 auto draw() -> void
 {
-	mat4 world1 = mat4::rotate(0.0f, 1.0f, 0.0f, gAngle * (PI/180.0f));
+	mat4 world1 = mat4::rotate(0.0f, 1.0f, 0.0f, PI / 4.0f);
 	mat4 world2 = mat4::scale(6.0f, 0.1f, 6.0f) * mat4::translate(0.0f, -0.5f, 0.0f);
 
-	// 1. first render to depth map
-	glViewport(0, 0, 1024, 1024);
-	glBindFramebuffer(GL_FRAMEBUFFER, gDepthFBO);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		glUseProgram(gShadowProgram);
-		glBindVertexArray(gVAO);
-		
-		glUniformMatrix4fv(gWorldLoc, 1, false, world1.m);
-		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-
-		glUniformMatrix4fv(gWorldLoc, 1, false, world2.m);
-		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	vec4 eyePos = mat4::rotate(0.0f, 1.0f, 0.0f, gAngle * (PI/180.0f)) * vec4(0.0f, 3.0, 9.0f, 1.0f);
+	mat4 view = mat4::lookAt(vec3(eyePos.x, eyePos.y, eyePos.z), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 
 	glViewport(0, 0, gWidth, gHeight);
 	glClearColor(0.0f, 0.2f, 0.2f, 1.0f);
@@ -266,14 +273,30 @@ auto draw() -> void
 	glUseProgram(gProgram);
 	glBindVertexArray(gVAO);
 
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, gDepthMap);
+	glUniformMatrix4fv(gViewLoc, 1, false, view.m);
 
 	glUniformMatrix4fv(gWorldLoc, 1, false, world1.m);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
 	glUniformMatrix4fv(gWorldLoc, 1, false, world2.m);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+	glDepthFunc(GL_LEQUAL);
+	glUseProgram(gSkyboxProgram);
+	float m[16] = 
+	{
+		view.m[0], view.m[1], view.m[2], 0.0f, 
+		view.m[4], view.m[5], view.m[6], 0.0f, 
+		view.m[8], view.m[9], view.m[10], 0.0f, 
+		0.0f, 0.0f, 0.0f, 1.0f
+	};
+
+	glUniformMatrix4fv(gSkyboxViewLoc, 1, false, m);
+	glBindVertexArray(gVAO);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, gTexture);
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+	glDepthFunc(GL_LESS);
 }
 
 auto main() -> int

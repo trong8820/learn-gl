@@ -14,10 +14,10 @@ int gHeight{ 0 };
 int run();
 
 bool init();
-void size();
 void update();
 void draw();
 
+void on_size();
 void on_key(int key, int action);
 
 #endif // ENTRY_H__
