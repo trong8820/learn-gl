@@ -72,7 +72,8 @@ https://www.khronos.org/files/opengl46-quick-reference-card.pdf
 |ID|Example|No|
 |-|-|-|
 |1|Shadow Mapping|e_01|
-|1|Shadow Volumes|
+|1|Silhouette Detection|e_06|
+|1|Shadow Volumes|e_07|
 |1|Bloom|l_07|
 |1|Deferred Shading|
 |1|Occlusion Query|e_02|
