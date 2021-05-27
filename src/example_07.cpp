@@ -234,7 +234,7 @@ out vec4 FragColor;
 
 void main()
 {
-	//FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+	FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 }
 )";
 
@@ -380,6 +380,7 @@ auto init() -> bool
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_STENCIL_TEST);
     glDepthFunc(GL_LEQUAL);
 
 	return 0;
@@ -390,7 +391,6 @@ void on_size()
 	//std::cout << "size " << gWidth << " " << gHeight << std::endl;
 	glViewport(0, 0, gWidth, gHeight);
 
-	mat4 world = mat4::identity;
 	mat4 view = mat4::lookAt(vec3(0.0f, 3.0, 3.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 	mat4 proj = mat4::perspective(45.0f * (PI/180.0f), static_cast<float>(gWidth)/gHeight, 0.1f, 100.0f);
 
@@ -435,10 +435,13 @@ auto draw() -> void
 	mat4 world2 = mat4::scale(6.0f, 0.1f, 6.0f) * mat4::translate(0.0f, -0.5f, 0.0f);
 
 	glViewport(0, 0, gWidth, gHeight);
-	glClearColor(0.0f, 0.2f, 0.2f, 1.0f);
     glDepthMask(GL_TRUE);
+	glStencilMask(0xFF);
+	glClearColor(0.0f, 0.2f, 0.2f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	glStencilMask(0x00);
 
+	/*
     // pass 1
     glDrawBuffer(GL_NONE);
 	glUseProgram(gNullProgram);
@@ -448,34 +451,69 @@ auto draw() -> void
 	glDrawElements(GL_TRIANGLES_ADJACENCY, 72, GL_UNSIGNED_INT, 0);
 
     // pass 2
-	glEnable(GL_STENCIL_TEST);
+	//glDrawBuffer(GL_NONE);
     glDepthMask(GL_FALSE);
-    glEnable(GL_DEPTH_CLAMP);
-    glDisable(GL_CULL_FACE);
-    glStencilFunc(GL_ALWAYS, 0, 0xff);
-    glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
-    glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
+
+	glCullFace(GL_FRONT_AND_BACK); 
+
+    //glStencilFunc(GL_ALWAYS, 0, 0xFF);
+	//glStencilMask(0xFF);
+    glStencilMask(0xFF);
+	glStencilFunc(GL_NEVER, 1, 0xFF);
+    //glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
+    //glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
+
 	glUseProgram(gSilhouetteProgram);
 	glBindVertexArray(gVAO);
 
 	glUniformMatrix4fv(gSilhouetteWorldLoc, 1, false, world1.m);
 	glDrawElements(GL_TRIANGLES_ADJACENCY, 72, GL_UNSIGNED_INT, 0);
-    glDisable(GL_DEPTH_CLAMP);
-    glEnable(GL_CULL_FACE);
 
     // pass 3
     glDrawBuffer(GL_BACK);
     glStencilFunc(GL_EQUAL, 0x0, 0xFF);
+	glStencilMask(0x00);
     glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
     glUseProgram(gProgram);
 	glBindVertexArray(gVAO);
 
 	glUniformMatrix4fv(gWorldLoc, 1, false, world1.m);
 	glDrawElements(GL_TRIANGLES_ADJACENCY, 72, GL_UNSIGNED_INT, 0);
-    glDisable(GL_STENCIL_TEST);
 
     // pass 4
-    /*glUseProgram(gProgram);
+    glUseProgram(gProgram);
+	glBindVertexArray(gVAO);
+
+	glUniformMatrix4fv(gWorldLoc, 1, false, world1.m);
+	glDrawElements(GL_TRIANGLES_ADJACENCY, 72, GL_UNSIGNED_INT, 0);
+	*/
+
+	glUseProgram(gNullProgram);
+	glBindVertexArray(gVAO);
+
+	glUniformMatrix4fv(gNullWorldLoc, 1, false, world1.m);
+	glDrawElements(GL_TRIANGLES_ADJACENCY, 72, GL_UNSIGNED_INT, 0);
+	glDepthMask(GL_FALSE);
+	
+	glDisable(GL_CULL_FACE);
+    glStencilMask(0xFF);
+	glStencilFunc(GL_NEVER, 1, 0xFF);
+	//glStencilFunc(GL_ALWAYS, 0x0, 0xFF);
+	glStencilOp(GL_REPLACE, GL_KEEP, GL_KEEP);
+	//glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
+	//glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
+	glUseProgram(gSilhouetteProgram);
+	glBindVertexArray(gVAO);
+
+	glUniformMatrix4fv(gSilhouetteWorldLoc, 1, false, world1.m);
+	glDrawElements(GL_TRIANGLES_ADJACENCY, 72, GL_UNSIGNED_INT, 0);
+	
+	/*
+	glStencilFunc(GL_EQUAL, 0x0, 0xFF);
+    glStencilMask(0x00);
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_FRONT);
+	glUseProgram(gProgram);
 	glBindVertexArray(gVAO);
 
 	glUniformMatrix4fv(gWorldLoc, 1, false, world1.m);
