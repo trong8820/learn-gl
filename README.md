@@ -86,7 +86,7 @@ https://www.khronos.org/files/opengl46-quick-reference-card.pdf
 |1|Ocean Rendering|
 |1|Displacement mapping|
 |1|Raymarch|
-|1|Phong and Blinn-Phong|
+|1|Phong and Blinn-Phong|e_08|
 |1|LOD|
 |1|IBL|
 |1|OIT|

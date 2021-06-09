@@ -187,7 +187,7 @@ auto init() -> bool
 	glUseProgram(gShadowProgram);
 	GLint shadownLightSpaceLoc = glGetUniformLocation(gShadowProgram, "lightSpace");
 	gShadowWorldLoc = glGetUniformLocation(gShadowProgram, "world");
-	mat4 view = mat4::lookAt(vec3(-3.0f, 5.0, -1.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
+	mat4 view = mat4::lookAt(vec3(-3.0f, 5.0f, -1.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 	mat4 proj = mat4::ortho(8.0f, 8.0f, 0.1f, 100.0f);
 	mat4 lightSpace = view*proj;
 	glUniformMatrix4fv(shadownLightSpaceLoc, 1, false, lightSpace.m);
@@ -213,7 +213,7 @@ void size()
 	GLint projLoc = glGetUniformLocation(gProgram, "proj");
 
 	mat4 world = mat4::identity;
-	mat4 view = mat4::lookAt(vec3(0.0f, 3.0, 3.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
+	mat4 view = mat4::lookAt(vec3(0.0f, 3.0f, 3.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 	mat4 proj = mat4::perspective(45.0f * (PI/180.0f), static_cast<float>(gWidth)/gHeight, 0.1f, 100.0f);
 	glUniformMatrix4fv(viewLoc, 1, false, view.m);
 	glUniformMatrix4fv(projLoc, 1, false, proj.m);
