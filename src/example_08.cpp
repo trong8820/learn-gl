@@ -39,6 +39,11 @@ void main()
 const char *fragmentShaderSource = R"(
 #version 410 core
 
+const vec3 lightPos = vec3(-3.0, 5.0, -1.0);
+const vec3 viewPos = vec3(0.0, 3.0, 3.0);
+const vec3 lightColor = vec3(1.0, 1.0, 1.0);
+const vec3 objectColor = vec3(1.0, 1.0, 1.0);
+
 in vec3 vFragPos;
 in vec2 vUV;
 in vec3 vNormal;
@@ -47,11 +52,6 @@ out vec4 FragColor;
 
 void main()
 {
-    vec3 lightPos = vec3(-3.0, 5.0, -1.0);
-    vec3 viewPos = vec3(0.0, 3.0, 3.0);
-    vec3 lightColor = vec3(1.0, 1.0, 1.0);
-    vec3 objectColor = vec3(1.0, 1.0, 1.0);
-
     // ambient
     float ambientStrength = 0.3;
     vec3 ambient = ambientStrength * lightColor;
