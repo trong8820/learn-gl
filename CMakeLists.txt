@@ -111,6 +111,7 @@ add_executable(example_05 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURC
 add_executable(example_06 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_06.cpp)
 add_executable(example_07 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_07.cpp)
 add_executable(example_08 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_08.cpp)
+add_executable(example_09 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_09.cpp)
 
 # Data
 if (EXISTS ${CMAKE_SOURCE_DIR}/data)
@@ -121,5 +122,9 @@ add_custom_command(TARGET  ${PROJECT_NAME}_08 PRE_BUILD
 add_custom_command(TARGET  example_05 PRE_BUILD
 				   COMMAND ${CMAKE_COMMAND} -E copy_directory
 				   ${CMAKE_SOURCE_DIR}/data $<TARGET_FILE_DIR:example_05>/data
+)
+add_custom_command(TARGET  example_09 PRE_BUILD
+				   COMMAND ${CMAKE_COMMAND} -E copy_directory
+				   ${CMAKE_SOURCE_DIR}/data $<TARGET_FILE_DIR:example_09>/data
 )
 endif()
