@@ -72,7 +72,7 @@ https://www.khronos.org/files/opengl46-quick-reference-card.pdf
 |ID|Example|No|
 |-|-|-|
 |1|Shadow Mapping|e_01|
-|1|Normal Mapping|
+|1|Normal Mapping|e_09|
 |1|Parallax Mapping|
 |1|Silhouette Detection|e_06|
 |1|Shadow Volumes|e_07|

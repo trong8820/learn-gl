@@ -18,6 +18,9 @@ const float PI = 3.14159265358979f;
 const char* vertexShaderSource = R"(
 #version 410 core
 
+const vec3 lightPos = vec3(-3.0, 5.0, -1.0);
+const vec3 viewPos = vec3(0.0, 3.0, 3.0);
+
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec2 aUV;
 layout (location = 2) in vec3 aNormal;
@@ -29,13 +32,26 @@ uniform mat4 proj;
 
 out vec3 vFragPos;
 out vec2 vUV;
-out vec3 vNormal;
+out vec3 vTangentLightPos;
+out vec3 vTangentViewPos;
+out vec3 vTangentFragPos;
 
 void main()
 {
 	vFragPos = vec3(world * vec4(aPos, 1.0));
 	vUV = aUV;
-	vNormal = mat3(transpose(inverse(world))) * aNormal;
+
+	mat3 normalMatrix = transpose(inverse(mat3(world)));
+    vec3 N = normalize(normalMatrix * aNormal);
+    vec3 T = normalize(normalMatrix * aTangent);
+	T = normalize(T - dot(T, N) * N);
+    vec3 B = cross(N, T);
+
+	mat3 TBN = transpose(mat3(T, B, N));  
+	vTangentLightPos = TBN * lightPos; 
+	vTangentViewPos = TBN * viewPos;
+	vTangentFragPos = TBN * vFragPos;
+
 	gl_Position = proj * view * world * vec4(aPos, 1.0);
 }
 )";
@@ -43,8 +59,6 @@ void main()
 const char* fragmentShaderSource = R"(
 #version 410 core
 
-const vec3 lightPos = vec3(-3.0, 5.0, -1.0);
-const vec3 viewPos = vec3(0.0, 3.0, 3.0);
 const vec3 lightColor = vec3(1.0, 1.0, 1.0);
 const vec3 objectColor = vec3(1.0, 1.0, 1.0);
 
@@ -53,38 +67,32 @@ uniform sampler2D normalMap;
 
 in vec3 vFragPos;
 in vec2 vUV;
-in vec3 vNormal;
+in vec3 vTangentLightPos;
+in vec3 vTangentViewPos;
+in vec3 vTangentFragPos;
 
 out vec4 FragColor;
 
 void main()
 {
 	vec3 color = texture(diffuseMap, vUV).rgb;
+	vec3 normal = texture(normalMap, vUV).rgb;
+	normal = normalize(normal * 2.0 - 1.0);
 
 	// ambient
-	float ambientStrength = 0.3;
+	float ambientStrength = 0.6;
 	vec3 ambient = ambientStrength * lightColor * color;
 
 	// diffuse
-	vec3 norm = normalize(vNormal);
-	vec3 lightDir = normalize(lightPos - vFragPos);
-	float diff = max(dot(norm, lightDir), 0.0);
-	vec3 diffuse = diff * lightColor;
-
-	// specular - Phong
-	/*
-	float specularStrength = 0.5;
-	vec3 viewDir = normalize(viewPos - vFragPos);
-	vec3 reflectDir = reflect(-lightDir, norm);
-	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
-	vec3 specular = specularStrength * spec * lightColor;
-	*/
+	vec3 lightDir = normalize(vTangentLightPos - vTangentFragPos);
+	float diff = max(dot(normal, lightDir), 0.0);
+	vec3 diffuse = diff * color * lightColor;
 
 	// specular - Blinn-Phong
-	float specularStrength = 0.2;
-	vec3 viewDir = normalize(viewPos - vFragPos);
+	float specularStrength = 0.5;
+	vec3 viewDir = normalize(vTangentViewPos - vTangentFragPos);
 	vec3 halfwayDir = normalize(lightDir + viewDir);
-	float spec = pow(max(dot(norm, halfwayDir), 0.0), 32.0);
+	float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
 	vec3 specular = specularStrength * spec * lightColor;
 
 	vec3 result = (ambient + diffuse + specular) * objectColor;
@@ -168,6 +176,8 @@ auto init() -> bool
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	glUseProgram(gProgram);
+	glUniform1i(glGetUniformLocation(gProgram, "diffuseMap"), 0); 
+	glUniform1i(glGetUniformLocation(gProgram, "normalMap"), 1); 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, diffuseTexture);
 	glActiveTexture(GL_TEXTURE1);
@@ -238,6 +248,7 @@ std::tuple<std::vector<float>, std::vector<unsigned int>> sphere(unsigned int se
 		{
 			float xSegment = (float)x / (float)segments;
 			float ySegment = (float)y / (float)segments;
+
 			float xPos = std::cos(xSegment * 2.0f * PI) * std::sin(ySegment * PI);
 			float yPos = std::cos(ySegment * PI);
 			float zPos = std::sin(xSegment * 2.0f * PI) * std::sin(ySegment * PI);
@@ -253,9 +264,9 @@ std::tuple<std::vector<float>, std::vector<unsigned int>> sphere(unsigned int se
 			vertices.push_back(yPos);
 			vertices.push_back(zPos);
 
+			vertices.push_back(-std::sin(xSegment * 2.0f * PI));
 			vertices.push_back(0.0f);
-			vertices.push_back(0.0f);
-			vertices.push_back(0.0f);
+			vertices.push_back(std::cos(xSegment * 2.0f * PI));
 		}
 	}
 
@@ -284,7 +295,8 @@ void loadTexture(const std::string& path)
 {
 	njInit();
 	std::ifstream ifs(path, std::ios::binary | std::ios::ate);
-	std::streamsize size = ifs.tellg();
+	std::ifstream::pos_type pos = ifs.tellg();
+	size_t size = static_cast<size_t>(pos);
 	ifs.seekg(0, std::ios::beg);
 
 	std::vector<char> buffer(size);
