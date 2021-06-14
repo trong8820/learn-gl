@@ -72,7 +72,7 @@ https://www.khronos.org/files/opengl46-quick-reference-card.pdf
 |ID|Example|No|
 |-|-|-|
 |1|Shadow Mapping|e_01|
-|1|Bump Mapping|
+|1|Bump Mapping|e_10|
 |1|Normal Mapping|e_09|
 |1|Parallax Mapping|
 |1|Displacement mapping|

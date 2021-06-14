@@ -35,7 +35,7 @@ void main()
 {
 	vFragPos = vec3(world * vec4(aPos, 1.0));
 	vUV = aUV;
-	vNormal = vec3(world * vec4(aNormal, 1.0));
+	vNormal = normalize(vec3(world * vec4(aNormal, 1.0)));
 
 	gl_Position = proj * view * world * vec4(aPos, 1.0);
 }
@@ -81,7 +81,7 @@ vec3 perturbNormalArb( vec3 surf_pos, vec3 surf_norm, vec2 dHdxy)
 	vec3 vSigmaY = vec3( dFdy( surf_pos.x ), dFdy( surf_pos.y ), dFdy( surf_pos.z ) );
 	vec3 vR1 = cross( vSigmaY, surf_norm );
 	vec3 vR2 = cross( surf_norm, vSigmaX );
-	
+
 	float fDet = dot( vSigmaX, vR1 ) * (float( gl_FrontFacing ) * 2.0 - 1.0);
 
 	vec3 vGrad = sign( fDet ) * ( dHdxy.x * vR1 + dHdxy.y * vR2 );
