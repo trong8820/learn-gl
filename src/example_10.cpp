@@ -18,9 +18,6 @@ const float PI = 3.14159265358979f;
 const char* vertexShaderSource = R"(
 #version 410 core
 
-const vec3 lightPos = vec3(-3.0, 5.0, -1.0);
-const vec3 viewPos = vec3(0.0, 3.0, 3.0);
-
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec2 aUV;
 layout (location = 2) in vec3 aNormal;
@@ -33,9 +30,6 @@ uniform mat4 proj;
 out vec3 vFragPos;
 out vec2 vUV;
 out vec3 vNormal;
-out vec3 vTangentLightPos;
-out vec3 vTangentViewPos;
-out vec3 vTangentFragPos;
 
 void main()
 {
@@ -43,27 +37,19 @@ void main()
 	vUV = aUV;
 	vNormal = vec3(world * vec4(aNormal, 1.0));
 
-	mat3 normalMatrix = transpose(inverse(mat3(world)));
-	vec3 N = normalize(normalMatrix * aNormal);
-	vec3 T = normalize(normalMatrix * aTangent);
-	T = normalize(T - dot(T, N) * N);
-	vec3 B = cross(N, T);
-
-	mat3 TBN = transpose(mat3(T, B, N));
-	vTangentLightPos = TBN * lightPos;
-	vTangentViewPos = TBN * viewPos;
-	vTangentFragPos = TBN * vFragPos;
-
 	gl_Position = proj * view * world * vec4(aPos, 1.0);
 }
 )";
 
 const char* fragmentShaderSource = R"(
 #version 410 core
+#extension GL_OES_standard_derivatives : enable
 
 const vec3 lightColor = vec3(1.0, 1.0, 1.0);
 const vec3 objectColor = vec3(1.0, 1.0, 1.0);
-const float bumpScale = 0.8;
+const vec3 lightPos = vec3(-3.0, 5.0, -1.0);
+const vec3 viewPos = vec3(0.0, 3.0, 3.0);
+const float bumpScale = 0.3;
 
 uniform sampler2D diffuseMap;
 uniform sampler2D bumpMap;
@@ -71,57 +57,54 @@ uniform sampler2D bumpMap;
 in vec3 vFragPos;
 in vec2 vUV;
 in vec3 vNormal;
-in vec3 vTangentLightPos;
-in vec3 vTangentViewPos;
-in vec3 vTangentFragPos;
 
 out vec4 FragColor;
-
-float faceDirection = gl_FrontFacing ? -1.0 : 1.0;
 
 vec2 dHdxy_fwd()
 {
 	vec2 dSTdx = dFdx( vUV );
 	vec2 dSTdy = dFdy( vUV );
-	float Hll = bumpScale * texture2D( bumpMap, vUV ).x;
-	float dBx = bumpScale * texture2D( bumpMap, vUV + dSTdx ).x - Hll;
-	float dBy = bumpScale * texture2D( bumpMap, vUV + dSTdy ).x - Hll;
+	float Hll = bumpScale * texture( bumpMap, vUV ).x;
+	float dBx = bumpScale * texture( bumpMap, vUV + dSTdx ).x - Hll;
+	float dBy = bumpScale * texture( bumpMap, vUV + dSTdy ).x - Hll;
 
-	//float Hll = bumpScale * texture2D( bumpMap, vUV ).x;
+	//float Hll = bumpScale * texture( bumpMap, vUV ).x;
 	//float dBx = dFdx(Hll);
 	//float dBy = dFdy(Hll);
 	return vec2( dBx, dBy );
 }
 
-vec3 perturbNormalArb( vec3 surf_pos, vec3 surf_norm, vec2 dHdxy, float faceDirection )
+vec3 perturbNormalArb( vec3 surf_pos, vec3 surf_norm, vec2 dHdxy)
 {
+	// http://stackoverflow.com/questions/20272272/
 	vec3 vSigmaX = vec3( dFdx( surf_pos.x ), dFdx( surf_pos.y ), dFdx( surf_pos.z ) );
 	vec3 vSigmaY = vec3( dFdy( surf_pos.x ), dFdy( surf_pos.y ), dFdy( surf_pos.z ) );
-	vec3 vN = surf_norm;		// normalized
-	vec3 R1 = cross( vSigmaY, vN );
-	vec3 R2 = cross( vN, vSigmaX );
-	float fDet = dot( vSigmaX, R1 ) * faceDirection;
-	vec3 vGrad = sign( fDet ) * ( dHdxy.x * R1 + dHdxy.y * R2 );
+	vec3 vR1 = cross( vSigmaY, surf_norm );
+	vec3 vR2 = cross( surf_norm, vSigmaX );
+	
+	float fDet = dot( vSigmaX, vR1 ) * (float( gl_FrontFacing ) * 2.0 - 1.0);
+
+	vec3 vGrad = sign( fDet ) * ( dHdxy.x * vR1 + dHdxy.y * vR2 );
 	return normalize( abs( fDet ) * surf_norm - vGrad );
 }
 
 void main()
 {
 	vec3 color = texture(diffuseMap, vUV).rgb;
-	vec3 normal = perturbNormalArb(vFragPos, vNormal, dHdxy_fwd(), faceDirection);
+	vec3 normal = perturbNormalArb(vFragPos, vNormal, dHdxy_fwd());
 
 	// ambient
 	float ambientStrength = 0.6;
 	vec3 ambient = ambientStrength * lightColor * color;
 
 	// diffuse
-	vec3 lightDir = normalize(vTangentLightPos - vTangentFragPos);
+	vec3 lightDir = normalize(lightPos - vFragPos);
 	float diff = max(dot(normal, lightDir), 0.0);
 	vec3 diffuse = diff * color * lightColor;
 
 	// specular - Blinn-Phong
 	float specularStrength = 0.3;
-	vec3 viewDir = normalize(vTangentViewPos - vTangentFragPos);
+	vec3 viewDir = normalize(viewPos - vFragPos);
 	vec3 halfwayDir = normalize(lightDir + viewDir);
 	float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
 	vec3 specular = specularStrength * spec * lightColor;
@@ -150,10 +133,38 @@ auto init() -> bool
 	auto vertexShader = GL_CHECK_RETURN(glCreateShader(GL_VERTEX_SHADER));
 	GL_CHECK(glShaderSource(vertexShader, 1, &vertexShaderSource, NULL));
 	GL_CHECK(glCompileShader(vertexShader));
+	{
+		GLint success;
+		GL_CHECK(glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success));
+		if(!success)
+		{
+			GLint infoLength = 0;
+			glGetShaderiv(vertexShader, GL_INFO_LOG_LENGTH, &infoLength);
+			char* infoLog = new char[infoLength];
+			GL_CHECK(glGetShaderInfoLog(vertexShader, infoLength, &infoLength, infoLog));
+			std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << "VERTEX_SHADER" << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+			delete [] infoLog;
+			GL_CHECK(glDeleteShader(vertexShader));
+		}
+	}
 
 	auto fragmentShader = GL_CHECK_RETURN(glCreateShader(GL_FRAGMENT_SHADER));
 	GL_CHECK(glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL));
 	GL_CHECK(glCompileShader(fragmentShader));
+	{
+		GLint success;
+		GL_CHECK(glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success));
+		if(!success)
+		{
+			GLint infoLength = 0;
+			glGetShaderiv(fragmentShader, GL_INFO_LOG_LENGTH, &infoLength);
+			char* infoLog = new char[infoLength];
+			GL_CHECK(glGetShaderInfoLog(fragmentShader, infoLength, &infoLength, infoLog));
+			std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << "FRAGMENT_SHADER" << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+			delete [] infoLog;
+			GL_CHECK(glDeleteShader(fragmentShader));
+		}
+	}
 
 	gProgram = GL_CHECK_RETURN(glCreateProgram());
 	GL_CHECK(glAttachShader(gProgram, vertexShader));
