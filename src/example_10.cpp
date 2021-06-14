@@ -48,11 +48,11 @@ const char* fragmentShaderSource = R"(
 const vec3 lightColor = vec3(1.0, 1.0, 1.0);
 const vec3 objectColor = vec3(1.0, 1.0, 1.0);
 const vec3 lightPos = vec3(-3.0, 5.0, -1.0);
-const vec3 viewPos = vec3(0.0, 3.0, 3.0);
 const float bumpScale = 0.3;
 
 uniform sampler2D diffuseMap;
 uniform sampler2D bumpMap;
+uniform vec3 eyePos;
 
 in vec3 vFragPos;
 in vec2 vUV;
@@ -104,7 +104,7 @@ void main()
 
 	// specular - Blinn-Phong
 	float specularStrength = 0.3;
-	vec3 viewDir = normalize(viewPos - vFragPos);
+	vec3 viewDir = normalize(eyePos - vFragPos);
 	vec3 halfwayDir = normalize(lightDir + viewDir);
 	float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
 	vec3 specular = specularStrength * spec * lightColor;
@@ -116,8 +116,20 @@ void main()
 
 GLuint gProgram;
 GLuint gVAO;
+GLint gViewLoc;
+GLint gEyePosLoc;
 
 GLsizei gIndexCount;
+
+double gPrevPosX;
+double gPrevPosY;
+float gTargetRotX;
+float gTargetRotY;
+float gRotX;
+float gRotY;
+
+vec3 gEyePos;
+mat4 gView;
 
 std::tuple<std::vector<float>, std::vector<unsigned int>> sphere(unsigned int segments);
 void loadTexture(const std::string& path);
@@ -225,13 +237,17 @@ auto init() -> bool
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, bumpTexture);
 
+	gEyePosLoc = glGetUniformLocation(gProgram, "eyePos");
+
 	on_size();
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_DEPTH_TEST);
 
-	return 0;
+	glfwGetCursorPos(g_pWindow, &gPrevPosX, &gPrevPosY);
+
+	return true;
 }
 
 void on_size()
@@ -241,14 +257,14 @@ void on_size()
 
 	glUseProgram(gProgram);
 	GLint worldLoc = glGetUniformLocation(gProgram, "world");
-	GLint viewLoc = glGetUniformLocation(gProgram, "view");
+	gViewLoc = glGetUniformLocation(gProgram, "view");
 	GLint projLoc = glGetUniformLocation(gProgram, "proj");
 
 	mat4 world = mat4::identity;
-	mat4 view = mat4::lookAt(vec3(0.0f, 3.0f, 3.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
+	//mat4 view = mat4::lookAt(vec3(0.0f, 3.0f, 3.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 	mat4 proj = mat4::perspective(45.0f * (PI / 180.0f), static_cast<float>(gWidth) / gHeight, 0.1f, 100.0f);
 	glUniformMatrix4fv(worldLoc, 1, false, world.m);
-	glUniformMatrix4fv(viewLoc, 1, false, view.m);
+	//glUniformMatrix4fv(gViewLoc, 1, false, view.m);
 	glUniformMatrix4fv(projLoc, 1, false, proj.m);
 }
 
@@ -257,8 +273,29 @@ void on_key(int key, int action)
 
 }
 
+void on_mouse(double xpos, double ypos)
+{
+	int state = glfwGetMouseButton(g_pWindow, GLFW_MOUSE_BUTTON_LEFT);
+	if (state == GLFW_PRESS)
+	{
+		gTargetRotX += (xpos - gPrevPosX)*0.01f;
+		gTargetRotY += (ypos - gPrevPosY)*0.01f;
+
+		if (gTargetRotY <= -PI / 2.0f) gTargetRotY = -PI / 2.0f + 0.01f;
+		if (gTargetRotY >= PI / 2.0f)  gTargetRotY = PI / 2.0f - 0.01f;
+	}
+	gPrevPosX = xpos;
+	gPrevPosY = ypos;
+}
+
 auto update() -> void
 {
+	gRotX += 0.05 * (gTargetRotX - gRotX);
+	gRotY += 0.05 * (gTargetRotY - gRotY);
+
+	vec4 eyePos = mat4::rotate(0.0f, 1.0f, 0.0f, -gRotX) * mat4::rotate(1.0f, 0.0f, 0.0f, -gRotY) * vec4(0.0f, 0.0f, 3.0f, 1.0f);
+	gEyePos = vec3(eyePos.x, eyePos.y, eyePos.z);
+	gView = mat4::lookAt(gEyePos, vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 
 }
 
@@ -269,6 +306,8 @@ auto draw() -> void
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glUseProgram(gProgram);
+	glUniformMatrix4fv(gViewLoc, 1, false, gView.m);
+	glUniform3f(gEyePosLoc, gEyePos.x, gEyePos.y, gEyePos.z);
 	glBindVertexArray(gVAO);
 
 	glDrawElements(GL_TRIANGLES, gIndexCount, GL_UNSIGNED_INT, 0);

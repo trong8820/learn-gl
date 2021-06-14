@@ -4,12 +4,17 @@ void window_size_callback(GLFWwindow* window, int width, int height)
 {
 	gWidth = width;
 	gHeight = height;
-    on_size();
+	on_size();
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    on_key(key, action);
+	on_key(key, action);
+}
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+	on_mouse(xpos, ypos);
 }
 
 auto run() -> int
@@ -35,13 +40,13 @@ auto run() -> int
 
 	glfwWindowHint(GLFW_SAMPLES, 4);
 
-	auto pWindow = glfwCreateWindow(800, 600, "Learn GL", nullptr, nullptr);
-	if (pWindow == nullptr) return EXIT_FAILURE;
+	g_pWindow = glfwCreateWindow(800, 600, "Learn GL", nullptr, nullptr);
+	if (g_pWindow == nullptr) return EXIT_FAILURE;
 
-	glfwMakeContextCurrent(pWindow);
+	glfwMakeContextCurrent(g_pWindow);
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) return EXIT_FAILURE;
 
-	glfwGetWindowSize(pWindow, &gWidth, &gHeight);
+	glfwGetWindowSize(g_pWindow, &gWidth, &gHeight);
 	//float xscale{ 1.0f };
 	//float yscale{ 1.0f };
 	//glfwGetWindowContentScale(m_pWindow, &xscale, &yscale);
@@ -64,23 +69,25 @@ auto run() -> int
 	}
 
 	init();
-	auto prevWindowSizeCallback = glfwSetWindowSizeCallback(pWindow, window_size_callback);
-	auto prevKeyCallback = glfwSetKeyCallback(pWindow, key_callback);
+	auto prevWindowSizeCallback = glfwSetWindowSizeCallback(g_pWindow, window_size_callback);
+	auto prevKeyCallback = glfwSetKeyCallback(g_pWindow, key_callback);
+	auto prevMouseCallback = glfwSetCursorPosCallback(g_pWindow, mouse_callback);
 
 	glfwSwapInterval(1);
-	while (glfwWindowShouldClose(pWindow) == GLFW_FALSE)
+	while (glfwWindowShouldClose(g_pWindow) == GLFW_FALSE)
 	{
 		update();
 		draw();
 
-		glfwSwapBuffers(pWindow);
+		glfwSwapBuffers(g_pWindow);
 		glfwPollEvents();
 	}
 
-	glfwSetKeyCallback(pWindow, prevKeyCallback);
-	glfwSetWindowSizeCallback(pWindow, prevWindowSizeCallback);
+	glfwSetKeyCallback(g_pWindow, prevKeyCallback);
+	glfwSetWindowSizeCallback(g_pWindow, prevWindowSizeCallback);
+	glfwSetCursorPosCallback(g_pWindow, prevMouseCallback);
 
-	glfwDestroyWindow(pWindow);
+	glfwDestroyWindow(g_pWindow);
 	glfwTerminate();
 	return EXIT_SUCCESS;
 }
