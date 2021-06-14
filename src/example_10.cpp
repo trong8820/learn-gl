@@ -1,4 +1,4 @@
-// Normal Mapping
+// Bump Mapping
 
 #include <vector>
 #include <tuple>
@@ -32,6 +32,7 @@ uniform mat4 proj;
 
 out vec3 vFragPos;
 out vec2 vUV;
+out vec3 vNormal;
 out vec3 vTangentLightPos;
 out vec3 vTangentViewPos;
 out vec3 vTangentFragPos;
@@ -40,12 +41,13 @@ void main()
 {
 	vFragPos = vec3(world * vec4(aPos, 1.0));
 	vUV = aUV;
+	vNormal = vec3(world * vec4(aNormal, 1.0));
 
 	mat3 normalMatrix = transpose(inverse(mat3(world)));
-    vec3 N = normalize(normalMatrix * aNormal);
-    vec3 T = normalize(normalMatrix * aTangent);
+	vec3 N = normalize(normalMatrix * aNormal);
+	vec3 T = normalize(normalMatrix * aTangent);
 	T = normalize(T - dot(T, N) * N);
-    vec3 B = cross(N, T);
+	vec3 B = cross(N, T);
 
 	mat3 TBN = transpose(mat3(T, B, N));
 	vTangentLightPos = TBN * lightPos;
@@ -61,23 +63,52 @@ const char* fragmentShaderSource = R"(
 
 const vec3 lightColor = vec3(1.0, 1.0, 1.0);
 const vec3 objectColor = vec3(1.0, 1.0, 1.0);
+const float bumpScale = 0.8;
 
 uniform sampler2D diffuseMap;
-uniform sampler2D normalMap;
+uniform sampler2D bumpMap;
 
 in vec3 vFragPos;
 in vec2 vUV;
+in vec3 vNormal;
 in vec3 vTangentLightPos;
 in vec3 vTangentViewPos;
 in vec3 vTangentFragPos;
 
 out vec4 FragColor;
 
+float faceDirection = gl_FrontFacing ? -1.0 : 1.0;
+
+vec2 dHdxy_fwd()
+{
+	vec2 dSTdx = dFdx( vUV );
+	vec2 dSTdy = dFdy( vUV );
+	float Hll = bumpScale * texture2D( bumpMap, vUV ).x;
+	float dBx = bumpScale * texture2D( bumpMap, vUV + dSTdx ).x - Hll;
+	float dBy = bumpScale * texture2D( bumpMap, vUV + dSTdy ).x - Hll;
+
+	//float Hll = bumpScale * texture2D( bumpMap, vUV ).x;
+	//float dBx = dFdx(Hll);
+	//float dBy = dFdy(Hll);
+	return vec2( dBx, dBy );
+}
+
+vec3 perturbNormalArb( vec3 surf_pos, vec3 surf_norm, vec2 dHdxy, float faceDirection )
+{
+	vec3 vSigmaX = vec3( dFdx( surf_pos.x ), dFdx( surf_pos.y ), dFdx( surf_pos.z ) );
+	vec3 vSigmaY = vec3( dFdy( surf_pos.x ), dFdy( surf_pos.y ), dFdy( surf_pos.z ) );
+	vec3 vN = surf_norm;		// normalized
+	vec3 R1 = cross( vSigmaY, vN );
+	vec3 R2 = cross( vN, vSigmaX );
+	float fDet = dot( vSigmaX, R1 ) * faceDirection;
+	vec3 vGrad = sign( fDet ) * ( dHdxy.x * R1 + dHdxy.y * R2 );
+	return normalize( abs( fDet ) * surf_norm - vGrad );
+}
+
 void main()
 {
 	vec3 color = texture(diffuseMap, vUV).rgb;
-	vec3 normal = texture(normalMap, vUV).rgb;
-	normal = normalize(normal * 2.0 - 1.0);
+	vec3 normal = perturbNormalArb(vFragPos, vNormal, dHdxy_fwd(), faceDirection);
 
 	// ambient
 	float ambientStrength = 0.6;
@@ -165,10 +196,10 @@ auto init() -> bool
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	GLuint normalTexture;
-	glGenTextures(1, &normalTexture);
-	glBindTexture(GL_TEXTURE_2D, normalTexture);
-	loadTexture("data/brickwall_normal.jpg");
+	GLuint bumpTexture;
+	glGenTextures(1, &bumpTexture);
+	glBindTexture(GL_TEXTURE_2D, bumpTexture);
+	loadTexture("data/brickwall_bump.jpg");
 	glGenerateMipmap(GL_TEXTURE_2D);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -177,11 +208,11 @@ auto init() -> bool
 
 	glUseProgram(gProgram);
 	glUniform1i(glGetUniformLocation(gProgram, "diffuseMap"), 0);
-	glUniform1i(glGetUniformLocation(gProgram, "normalMap"), 1);
+	glUniform1i(glGetUniformLocation(gProgram, "bumpMap"), 1);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, diffuseTexture);
 	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, normalTexture);
+	glBindTexture(GL_TEXTURE_2D, bumpTexture);
 
 	on_size();
 

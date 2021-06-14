@@ -72,8 +72,10 @@ https://www.khronos.org/files/opengl46-quick-reference-card.pdf
 |ID|Example|No|
 |-|-|-|
 |1|Shadow Mapping|e_01|
+|1|Bump Mapping|
 |1|Normal Mapping|e_09|
 |1|Parallax Mapping|
+|1|Displacement mapping|
 |1|Silhouette Detection|e_06|
 |1|Shadow Volumes|e_07|
 |1|Bloom|l_07|
@@ -86,7 +88,6 @@ https://www.khronos.org/files/opengl46-quick-reference-card.pdf
 |1|Particle Flow Simulation|
 |1|Particles|
 |1|Ocean Rendering|
-|1|Displacement mapping|
 |1|Raymarch|
 |1|Phong and Blinn-Phong|e_08|
 |1|LOD|
