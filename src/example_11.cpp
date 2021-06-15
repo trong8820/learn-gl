@@ -1,4 +1,4 @@
-// Bump Mapping
+// Parallax Mapping
 
 #include <vector>
 #include <tuple>
@@ -18,6 +18,8 @@ const float PI = 3.14159265358979f;
 const char* vertexShaderSource = R"(
 #version 410 core
 
+const vec3 lightPos = vec3(-3.0, 5.0, -1.0);
+
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec2 aUV;
 layout (location = 2) in vec3 aNormal;
@@ -27,15 +29,29 @@ uniform mat4 world;
 uniform mat4 view;
 uniform mat4 proj;
 
+uniform vec3 eyePos;
+
 out vec3 vFragPos;
 out vec2 vUV;
-out vec3 vNormal;
+out vec3 vTangentLightPos;
+out vec3 vTangentViewPos;
+out vec3 vTangentFragPos;
 
 void main()
 {
 	vFragPos = vec3(world * vec4(aPos, 1.0));
 	vUV = aUV;
-	vNormal = normalize(vec3(world * vec4(aNormal, 1.0)));
+
+	mat3 normalMatrix = transpose(inverse(mat3(world)));
+    vec3 N = normalize(normalMatrix * aNormal);
+    vec3 T = normalize(normalMatrix * aTangent);
+	T = normalize(T - dot(T, N) * N);
+    vec3 B = cross(N, T);
+
+	mat3 TBN = transpose(mat3(T, B, N));
+	vTangentLightPos = TBN * lightPos;
+	vTangentViewPos = TBN * eyePos;
+	vTangentFragPos = TBN * vFragPos;
 
 	gl_Position = proj * view * world * vec4(aPos, 1.0);
 }
@@ -43,68 +59,124 @@ void main()
 
 const char* fragmentShaderSource = R"(
 #version 410 core
-#extension GL_OES_standard_derivatives : enable
 
 const vec3 lightColor = vec3(1.0, 1.0, 1.0);
 const vec3 objectColor = vec3(1.0, 1.0, 1.0);
-const vec3 lightPos = vec3(-3.0, 5.0, -1.0);
-const float bumpScale = 0.3;
 
 uniform sampler2D diffuseMap;
-uniform sampler2D bumpMap;
-uniform vec3 eyePos;
+uniform sampler2D normalMap;
+uniform sampler2D depthMap;
 
 in vec3 vFragPos;
 in vec2 vUV;
-in vec3 vNormal;
+in vec3 vTangentLightPos;
+in vec3 vTangentViewPos;
+in vec3 vTangentFragPos;
+
+vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir)
+{ 
+    float height =  texture(depthMap, texCoords).r;     
+    return texCoords - viewDir.xy * (height * 0.025);        
+}
+
+// Steep Parallax Mapping
+vec2 ParallaxMapping2(vec2 texCoords, vec3 viewDir)
+{ 
+    // number of depth layers
+    const float minLayers = 8;
+    const float maxLayers = 32;
+    float numLayers = mix(maxLayers, minLayers, abs(dot(vec3(0.0, 0.0, 1.0), viewDir)));  
+    // calculate the size of each layer
+    float layerDepth = 1.0 / numLayers;
+    // depth of current layer
+    float currentLayerDepth = 0.0;
+    // the amount to shift the texture coordinates per layer (from vector P)
+    vec2 P = viewDir.xy / viewDir.z * 0.025; 
+    vec2 deltaTexCoords = P / numLayers;
+  
+    // get initial values
+    vec2  currentTexCoords     = texCoords;
+    float currentDepthMapValue = texture(depthMap, currentTexCoords).r;
+      
+    while(currentLayerDepth < currentDepthMapValue)
+    {
+        // shift texture coordinates along direction of P
+        currentTexCoords -= deltaTexCoords;
+        // get depthmap value at current texture coordinates
+        currentDepthMapValue = texture(depthMap, currentTexCoords).r;  
+        // get depth of next layer
+        currentLayerDepth += layerDepth;  
+    }
+    
+    return currentTexCoords;
+}
+
+// Parallax Occlusion Mapping
+vec2 ParallaxMapping3(vec2 texCoords, vec3 viewDir)
+{ 
+    // number of depth layers
+    const float minLayers = 8;
+    const float maxLayers = 32;
+    float numLayers = mix(maxLayers, minLayers, abs(dot(vec3(0.0, 0.0, 1.0), viewDir)));  
+    // calculate the size of each layer
+    float layerDepth = 1.0 / numLayers;
+    // depth of current layer
+    float currentLayerDepth = 0.0;
+    // the amount to shift the texture coordinates per layer (from vector P)
+    vec2 P = viewDir.xy / viewDir.z * 0.025; 
+    vec2 deltaTexCoords = P / numLayers;
+  
+    // get initial values
+    vec2  currentTexCoords     = texCoords;
+    float currentDepthMapValue = texture(depthMap, currentTexCoords).r;
+      
+    while(currentLayerDepth < currentDepthMapValue)
+    {
+        // shift texture coordinates along direction of P
+        currentTexCoords -= deltaTexCoords;
+        // get depthmap value at current texture coordinates
+        currentDepthMapValue = texture(depthMap, currentTexCoords).r;  
+        // get depth of next layer
+        currentLayerDepth += layerDepth;  
+    }
+    
+    // get texture coordinates before collision (reverse operations)
+    vec2 prevTexCoords = currentTexCoords + deltaTexCoords;
+
+    // get depth after and before collision for linear interpolation
+    float afterDepth  = currentDepthMapValue - currentLayerDepth;
+    float beforeDepth = texture(depthMap, prevTexCoords).r - currentLayerDepth + layerDepth;
+ 
+    // interpolation of texture coordinates
+    float weight = afterDepth / (afterDepth - beforeDepth);
+    vec2 finalTexCoords = prevTexCoords * weight + currentTexCoords * (1.0 - weight);
+
+    return finalTexCoords;
+}
 
 out vec4 FragColor;
 
-vec2 dHdxy_fwd()
-{
-	vec2 dSTdx = dFdx( vUV );
-	vec2 dSTdy = dFdy( vUV );
-	float Hll = bumpScale * texture( bumpMap, vUV ).x;
-	float dBx = bumpScale * texture( bumpMap, vUV + dSTdx ).x - Hll;
-	float dBy = bumpScale * texture( bumpMap, vUV + dSTdy ).x - Hll;
-
-	//float Hll = bumpScale * texture( bumpMap, vUV ).x;
-	//float dBx = dFdx(Hll);
-	//float dBy = dFdy(Hll);
-	return vec2( dBx, dBy );
-}
-
-vec3 perturbNormalArb( vec3 surf_pos, vec3 surf_norm, vec2 dHdxy)
-{
-	// http://stackoverflow.com/questions/20272272/
-	vec3 vSigmaX = vec3( dFdx( surf_pos.x ), dFdx( surf_pos.y ), dFdx( surf_pos.z ) );
-	vec3 vSigmaY = vec3( dFdy( surf_pos.x ), dFdy( surf_pos.y ), dFdy( surf_pos.z ) );
-	vec3 vR1 = cross( vSigmaY, surf_norm );
-	vec3 vR2 = cross( surf_norm, vSigmaX );
-
-	float fDet = dot( vSigmaX, vR1 ) * (float( gl_FrontFacing ) * 2.0 - 1.0);
-
-	vec3 vGrad = sign( fDet ) * ( dHdxy.x * vR1 + dHdxy.y * vR2 );
-	return normalize( abs( fDet ) * surf_norm - vGrad );
-}
-
 void main()
-{
-	vec3 color = texture(diffuseMap, vUV).rgb;
-	vec3 normal = perturbNormalArb(vFragPos, vNormal, dHdxy_fwd());
+{   
+    vec3 viewDir = normalize(vTangentViewPos - vTangentFragPos);
+    vec2 uv = ParallaxMapping3(vUV, viewDir);
+    //if(uv.x > 1.0 || uv.y > 1.0 || uv.x < 0.0 || uv.y < 0.0) discard;
+
+	vec3 color = texture(diffuseMap, uv).rgb;
+	vec3 normal = texture(normalMap, uv).rgb;
+	normal = normalize(normal * 2.0 - 1.0);
 
 	// ambient
 	float ambientStrength = 0.6;
 	vec3 ambient = ambientStrength * lightColor * color;
 
 	// diffuse
-	vec3 lightDir = normalize(lightPos - vFragPos);
+	vec3 lightDir = normalize(vTangentLightPos - vTangentFragPos);
 	float diff = max(dot(normal, lightDir), 0.0);
 	vec3 diffuse = diff * color * lightColor;
 
 	// specular - Blinn-Phong
 	float specularStrength = 0.3;
-	vec3 viewDir = normalize(eyePos - vFragPos);
 	vec3 halfwayDir = normalize(lightDir + viewDir);
 	float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
 	vec3 specular = specularStrength * spec * lightColor;
@@ -144,7 +216,7 @@ auto init() -> bool
 	//std::cout << "init " << gWidth << " " << gHeight << std::endl;
 	auto vertexShader = GL_CHECK_RETURN(glCreateShader(GL_VERTEX_SHADER));
 	GL_CHECK(glShaderSource(vertexShader, 1, &vertexShaderSource, NULL));
-	GL_CHECK(glCompileShader(vertexShader));
+    GL_CHECK(glCompileShader(vertexShader));
 	{
 		GLint success;
 		GL_CHECK(glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success));
@@ -162,7 +234,7 @@ auto init() -> bool
 
 	auto fragmentShader = GL_CHECK_RETURN(glCreateShader(GL_FRAGMENT_SHADER));
 	GL_CHECK(glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL));
-	GL_CHECK(glCompileShader(fragmentShader));
+    GL_CHECK(glCompileShader(fragmentShader));
 	{
 		GLint success;
 		GL_CHECK(glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success));
@@ -212,43 +284,56 @@ auto init() -> bool
 	GLuint diffuseTexture;
 	glGenTextures(1, &diffuseTexture);
 	glBindTexture(GL_TEXTURE_2D, diffuseTexture);
-	loadTexture("data/brickwall.jpg");
+	loadTexture("data/bricks2.jpg");
 	glGenerateMipmap(GL_TEXTURE_2D);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	GLuint normalTexture;
+	glGenTextures(1, &normalTexture);
+	glBindTexture(GL_TEXTURE_2D, normalTexture);
+	loadTexture("data/bricks2_normal.jpg");
+	glGenerateMipmap(GL_TEXTURE_2D);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	GLuint bumpTexture;
-	glGenTextures(1, &bumpTexture);
-	glBindTexture(GL_TEXTURE_2D, bumpTexture);
-	loadTexture("data/brickwall_bump.jpg");
+    GLuint depthTexture;
+	glGenTextures(1, &depthTexture);
+	glBindTexture(GL_TEXTURE_2D, depthTexture);
+	loadTexture("data/bricks2_disp.jpg");
 	glGenerateMipmap(GL_TEXTURE_2D);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	glUseProgram(gProgram);
 	glUniform1i(glGetUniformLocation(gProgram, "diffuseMap"), 0);
-	glUniform1i(glGetUniformLocation(gProgram, "bumpMap"), 1);
+	glUniform1i(glGetUniformLocation(gProgram, "normalMap"), 1);
+    glUniform1i(glGetUniformLocation(gProgram, "depthMap"), 2);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, diffuseTexture);
 	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, bumpTexture);
+	glBindTexture(GL_TEXTURE_2D, normalTexture);
+    glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, depthTexture);
 
-	gViewLoc = glGetUniformLocation(gProgram, "view");
-	gEyePosLoc = glGetUniformLocation(gProgram, "eyePos");
+    gViewLoc = glGetUniformLocation(gProgram, "view");
+    gEyePosLoc = glGetUniformLocation(gProgram, "eyePos");
 
-	on_size();
-
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_DEPTH_TEST);
 
-	glfwGetCursorPos(g_pWindow, &gPrevPosX, &gPrevPosY);
+	on_size();
 
-	return true;
+    glfwGetCursorPos(g_pWindow, &gPrevPosX, &gPrevPosY);
+
+	return 0;
 }
 
 void on_size()
@@ -258,11 +343,11 @@ void on_size()
 
 	glUseProgram(gProgram);
 	GLint worldLoc = glGetUniformLocation(gProgram, "world");
-	GLint viewLoc = glGetUniformLocation(gProgram, "view");
+	//GLint viewLoc = glGetUniformLocation(gProgram, "view");
 	GLint projLoc = glGetUniformLocation(gProgram, "proj");
 
 	mat4 world = mat4::identity;
-	//mat4 view = mat4::lookAt(vec3(0.0f, 3.0f, 3.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
+	mat4 view = mat4::lookAt(vec3(0.0f, 3.0f, 3.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 	mat4 proj = mat4::perspective(45.0f * (PI / 180.0f), static_cast<float>(gWidth) / gHeight, 0.1f, 100.0f);
 	glUniformMatrix4fv(worldLoc, 1, false, world.m);
 	//glUniformMatrix4fv(viewLoc, 1, false, view.m);
@@ -291,13 +376,12 @@ void on_mouse(double xpos, double ypos)
 
 auto update() -> void
 {
-	gRotX += 0.05 * (gTargetRotX - gRotX);
+    gRotX += 0.05 * (gTargetRotX - gRotX);
 	gRotY += 0.05 * (gTargetRotY - gRotY);
 
 	vec4 eyePos = mat4::rotate(0.0f, 1.0f, 0.0f, -gRotX) * mat4::rotate(1.0f, 0.0f, 0.0f, -gRotY) * vec4(0.0f, 0.0f, 3.0f, 1.0f);
 	gEyePos = vec3(eyePos.x, eyePos.y, eyePos.z);
 	gView = mat4::lookAt(gEyePos, vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
-
 }
 
 auto draw() -> void
@@ -307,7 +391,7 @@ auto draw() -> void
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glUseProgram(gProgram);
-	glUniformMatrix4fv(gViewLoc, 1, false, gView.m);
+    glUniformMatrix4fv(gViewLoc, 1, false, gView.m);
 	glUniform3f(gEyePosLoc, gEyePos.x, gEyePos.y, gEyePos.z);
 	glBindVertexArray(gVAO);
 
