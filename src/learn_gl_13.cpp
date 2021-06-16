@@ -148,6 +148,8 @@ auto init() -> bool
 	glLinkProgram(gProgram);
 
 	glDeleteShader(vertexShader);
+	glDeleteShader(tcShader);
+	glDeleteShader(teShader);
 	glDeleteShader(fragmentShader);
 
 	// Pass Matrix see: https://learnopengl.com/Advanced-OpenGL/Instancing

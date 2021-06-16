@@ -74,8 +74,8 @@ https://www.khronos.org/files/opengl46-quick-reference-card.pdf
 |1|Shadow Mapping|e_01|
 |1|Bump Mapping|e_10|
 |1|Normal Mapping|e_09|
-|1|Parallax Mapping|e_11|
-|1|Displacement mapping|
+|1|Parallax Mapping - POM|e_11|
+|1|Displacement Mapping|e_12|
 |1|Silhouette Detection|e_06|
 |1|Shadow Volumes|e_07|
 |1|Bloom|l_07|
@@ -94,11 +94,10 @@ https://www.khronos.org/files/opengl46-quick-reference-card.pdf
 |1|IBL|
 |1|OIT|
 |1|RSM|
-|1|POM|
 |1|MVS|
 |1|SSAO|
 |1|ASSAO|
-|1|SVT|
+|1|Sparse Virtual Texturing - SVT|
 |1|SSS|
 |1|Vector Display|
 |1|N Body|
