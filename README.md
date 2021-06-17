@@ -107,3 +107,6 @@ https://www.khronos.org/files/opengl46-quick-reference-card.pdf
 |1|Billboards|
 |1|Lights|
 |1|Animation|
+|1|Forward Plus|
+|1|Clustered Deferred|
+|1|Spherical Harmonics (SH)|
