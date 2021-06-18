@@ -95,7 +95,7 @@ https://www.khronos.org/files/opengl46-quick-reference-card.pdf
 |1|OIT|
 |1|RSM|
 |1|MVS|
-|1|SSAO|
+|1|SSAO|e_14|
 |1|ASSAO|
 |1|Sparse Virtual Texturing - SVT|
 |1|SSS|
