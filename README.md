@@ -79,7 +79,7 @@ https://www.khronos.org/files/opengl46-quick-reference-card.pdf
 |1|Silhouette Detection|e_06|
 |1|Shadow Volumes|e_07|
 |1|Bloom|l_07|
-|1|Deferred Shading|
+|1|Deferred Shading|e_13|
 |1|Occlusion Query|e_02|
 |1|Metaballs|e_03|
 |1|Terrain Rendering|e_04 [x]|
@@ -90,8 +90,9 @@ https://www.khronos.org/files/opengl46-quick-reference-card.pdf
 |1|Ocean Rendering|
 |1|Raymarch|
 |1|Phong and Blinn-Phong|e_08|
+|1|PBR Lighting Basic|e_15|
+|1|PBR IBL|
 |1|LOD|
-|1|IBL|
 |1|OIT|
 |1|RSM|
 |1|MVS|
