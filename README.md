@@ -69,8 +69,8 @@ https://www.khronos.org/files/opengl46-quick-reference-card.pdf
 |1|```glColorMask```|Giới hạn kênh mầu sẽ được viết ra tại Framebuffer|
 |1|HDR|
 
-|ID|Example|No|
-|-|-|-|
+|ID|Example|No|Description|
+|-|-|-|-|
 |1|Shadow Mapping|e_01|
 |1|Bump Mapping|e_10|
 |1|Normal Mapping|e_09|
@@ -91,7 +91,7 @@ https://www.khronos.org/files/opengl46-quick-reference-card.pdf
 |1|Raymarch|
 |1|Phong and Blinn-Phong|e_08|
 |1|PBR Lighting Basic|e_15|
-|1|PBR IBL|
+|1|PBR IBL||Image based lighting|
 |1|LOD|
 |1|OIT|
 |1|RSM|
