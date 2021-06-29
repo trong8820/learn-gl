@@ -91,7 +91,7 @@ https://www.khronos.org/files/opengl46-quick-reference-card.pdf
 |1|Raymarch|
 |1|Phong and Blinn-Phong|e_08|
 |1|PBR Lighting Basic|e_15|
-|1|PBR IBL||Image based lighting|
+|1|PBR IBL|e_16|Image based lighting|
 |1|LOD|
 |1|OIT|
 |1|RSM|
