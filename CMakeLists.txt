@@ -119,6 +119,7 @@ add_executable(example_13 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURC
 add_executable(example_14 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_14.cpp)
 add_executable(example_15 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_15.cpp)
 add_executable(example_16 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_16.cpp)
+add_executable(example_17 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_17.cpp)
 
 # Data
 if (EXISTS ${CMAKE_SOURCE_DIR}/data)
