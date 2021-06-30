@@ -93,6 +93,7 @@ https://www.khronos.org/files/opengl46-quick-reference-card.pdf
 |1|PBR Lighting Basic|e_15|
 |1|PBR IBL|e_16|Image based lighting|
 |1|LOD|
+|1|Blending|
 |1|OIT Weighted Blended|e_17|
 |1|RSM|
 |1|MVS|
