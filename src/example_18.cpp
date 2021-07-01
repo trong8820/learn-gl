@@ -1,4 +1,4 @@
-// OTI Weighted Blended
+// OIT Weighted Blended
 
 #include "macros.h"
 #include "entry.h"

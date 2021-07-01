@@ -82,17 +82,19 @@ https://www.khronos.org/files/opengl46-quick-reference-card.pdf
 |1|Deferred Shading|e_13|
 |1|Occlusion Query|e_02|
 |1|Metaballs|e_03|
-|1|Terrain Rendering|e_04 [x]|
+|1|Terrain Rendering|e_04[x]|
 |1|Skybox|e_05|
 |1|Advanced Shading Techniques|
 |1|Particle Flow Simulation|
 |1|Particles|
 |1|Ocean Rendering|
 |1|Raymarch|
+|1|RayTracing|
 |1|Phong and Blinn-Phong|e_08|
 |1|PBR Lighting Basic|e_15|
 |1|PBR IBL|e_16|Image based lighting|
 |1|LOD|
+|1|Premultiply|[v]|https://developer.nvidia.com/content/alpha-blending-pre-or-not-pre http://esotericsoftware.com/forum/Premultiplied-Alpha-Guide-3132
 |1|Blending|e_17|
 |1|OIT Weighted Blended|e_18|
 |1|RSM|
