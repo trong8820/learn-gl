@@ -32,21 +32,36 @@ const float EPSILON = 0.0001;
 
 uniform mat4 view;
 uniform vec3 eyePos;
-uniform float depth;
+uniform vec2 resolution;
 
 out vec4 FragColor;
 
-float cubeSDF(vec3 p)
+float sdTorus( vec3 p, vec2 t )
 {
-    vec3 d = abs(p) - vec3(1.0, 1.0, 1.0);
+  vec2 q = vec2(length(p.xz)-t.x,p.y);
+  return length(q)-t.y;
+}
+
+float cubeSDF(vec3 p, vec3 b)
+{
+    vec3 d = abs(p) - b;
     float insideDistance = min(max(d.x, max(d.y, d.z)), 0.0);
     float outsideDistance = length(max(d, 0.0));
     return insideDistance + outsideDistance;
 }
 
+float sdRoundBox( vec3 p, vec3 b, float r )
+{
+  vec3 q = abs(p) - b;
+  return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0) - r;
+}
+
 float sceneSDF(vec3 samplePoint) 
 {
-    return cubeSDF(samplePoint);
+    float d = cubeSDF(samplePoint + vec3(-4.2, 0.0, 0.0), vec3(1.0, 1.0, 1.0));
+    d = min(d, sdTorus(samplePoint, vec2(1.5, 0.5)));
+    d = min(d, sdRoundBox(samplePoint + vec3(4.2, 0.0, 0.0), vec3(1.0, 1.0, 1.0), 0.5));
+    return d;
 }
 
 float shortestDistanceToSurface(vec3 marchingDirection, float start, float end) 
@@ -65,27 +80,35 @@ float shortestDistanceToSurface(vec3 marchingDirection, float start, float end)
     return end;
 }
 
+vec3 rayDirection(float fieldOfView, vec2 size, vec2 fragCoord)
+{
+    vec2 xy = fragCoord - size / 2.0;
+    float z = size.y / tan(radians(fieldOfView) / 2.0);
+    return normalize(vec3(xy, -z));
+}
+
 void main()
 {
-    vec3 viewDir = normalize(vec3(gl_FragCoord.xy / 2.0, depth));
-    vec3 worldDir = normalize(vec3(inverse(view)*vec4(viewDir, 1.0)));
+    vec4 viewPos = vec4(-gl_FragCoord.xy + resolution/2.0, resolution.y / 2.0 / tan(radians(45.0)), 1.0); // 45.0 FOV
+    vec4 worldPos = inverse(view) * viewPos;
 
-    float dist = shortestDistanceToSurface(worldDir, MIN_DIST, MAX_DIST);
-    
-    if (dist > MAX_DIST - EPSILON) {
-        // Didn't hit anything
-        FragColor = vec4(0.0, 0.0, 0.0, 0.0);
-		return;
+    vec3 dir = normalize(eyePos - worldPos.xyz);
+
+    float dist = shortestDistanceToSurface(dir, MIN_DIST, MAX_DIST);
+    if (dist > MAX_DIST - EPSILON) 
+    {
+        FragColor = vec4(0.0, 0.2, 0.2, 0.0);
+        return;
     }
-    
-    FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+
+    FragColor = vec4(0.0, 1.0, 0.0, 1.0);
 }
 )";
 
 GLuint gProgram;
 GLint gViewLoc;
 GLint gEyePosLoc;
-GLint gDepthLoc;
+GLint gResolutionLoc;
 
 mat4 gView;
 
@@ -154,7 +177,9 @@ auto init() -> bool
     glUseProgram(gProgram);
 	gViewLoc = glGetUniformLocation(gProgram, "view");
     gEyePosLoc = glGetUniformLocation(gProgram, "eyePos");
-    gDepthLoc = glGetUniformLocation(gProgram, "depth");
+    gResolutionLoc = glGetUniformLocation(gProgram, "resolution");
+
+    on_size();
 
     return true;
 }
@@ -165,7 +190,7 @@ auto on_size() -> void
     glViewport(0, 0, gWidth, gHeight);
 
     glUseProgram(gProgram);
-    glUniform1f(gDepthLoc, gHeight / 2.0f / tanf(45.0f * (PI/180.0f)));
+    glUniform2f(gResolutionLoc, gWidth, gHeight);
 }
 
 auto on_key(int key, int action) -> void
@@ -193,7 +218,7 @@ auto update() -> void
     gRotX += 0.05 * (gTargetRotX - gRotX);
 	gRotY += 0.05 * (gTargetRotY - gRotY);
 
-	vec4 eyePos = mat4::rotate(0.0f, 1.0f, 0.0f, -gRotX) * mat4::rotate(1.0f, 0.0f, 0.0f, -gRotY) * vec4(0.0f, 0.0f, 6.0f, 0.0f);
+	vec4 eyePos = mat4::rotate(0.0f, 1.0f, 0.0f, -gRotX) * mat4::rotate(1.0f, 0.0f, 0.0f, -gRotY) * vec4(0.0f, 0.0f, 7.0f, 0.0f);
     gEyePos = vec3(eyePos.x, eyePos.y, eyePos.z);
 	gView = mat4::lookAt(gEyePos, vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 }
