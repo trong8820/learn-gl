@@ -84,11 +84,11 @@ https://www.khronos.org/files/opengl46-quick-reference-card.pdf
 |1|Metaballs|e_03|
 |1|Terrain Rendering|e_04[x]|
 |1|Skybox|e_05|
-|1|Advanced Shading Techniques|
+|1|Advanced Shading Techniques||macOS is not support|
 |1|Particle Flow Simulation|
-|1|Particles|
+|1|Particles||https://www.genericgamedev.com/effects/cpu-vs-gpu-particles-from-20-to-200-fps/
 |1|Ocean Rendering|
-|1|Raymarch|
+|1|Raymarch|e_19|
 |1|RayTracing|
 |1|Phong and Blinn-Phong|e_08|
 |1|PBR Lighting Basic|e_15|
@@ -97,13 +97,13 @@ https://www.khronos.org/files/opengl46-quick-reference-card.pdf
 |1|Premultiply|[v]|https://developer.nvidia.com/content/alpha-blending-pre-or-not-pre http://esotericsoftware.com/forum/Premultiplied-Alpha-Guide-3132
 |1|Blending|e_17|
 |1|OIT Weighted Blended|e_18|
-|1|RSM|
-|1|MVS|
+|1|RSM||Global Illumination with Reflective Shadow Map|
+|1|MVS|<l_03>|Multiple vertex streams|
 |1|SSAO|e_14|
-|1|ASSAO|
+|1|ASSAO||Adaptive Screen Space Ambient Occlusion|
 |1|Sparse Virtual Texturing - SVT|
 |1|SSS|
-|1|Vector Display|
+|1|Vector Display||beginDraw -> drawTo ... drawTo -> drawEnd|
 |1|N Body|
 |1|Bunnylod|
 |1|Denoise|
