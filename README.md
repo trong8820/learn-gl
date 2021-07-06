@@ -108,7 +108,7 @@ https://www.khronos.org/files/opengl46-quick-reference-card.pdf
 |1|Bunnylod|
 |1|Denoise|
 |1|Bokeh|
-|1|Billboards|
+|1|Billboards|e_20|
 |1|Lights|
 |1|Skeletal Animation|
 |1|Forward Plus|
