@@ -93,7 +93,7 @@ https://www.khronos.org/files/opengl46-quick-reference-card.pdf
 |1|Phong and Blinn-Phong|e_08|
 |1|PBR Lighting Basic|e_15|
 |1|PBR IBL|e_16|Image based lighting|
-|1|LOD|
+|1|LOD Level of detail||https://developer.arm.com/documentation/102496/0100/Level-of-Detail---LOD
 |1|Premultiply|[v]|https://developer.nvidia.com/content/alpha-blending-pre-or-not-pre http://esotericsoftware.com/forum/Premultiplied-Alpha-Guide-3132
 |1|Blending|e_17|
 |1|OIT Weighted Blended|e_18|
@@ -102,7 +102,7 @@ https://www.khronos.org/files/opengl46-quick-reference-card.pdf
 |1|SSAO|e_14|
 |1|ASSAO||Adaptive Screen Space Ambient Occlusion|
 |1|Sparse Virtual Texturing - SVT|
-|1|SSS|
+|1|SSS||Screen-Space Shadows
 |1|Vector Display||beginDraw -> drawTo ... drawTo -> drawEnd|
 |1|N Body|
 |1|Bunnylod|
