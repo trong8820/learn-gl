@@ -46,8 +46,8 @@ endif()
 # 3rdparty include
 include_directories (
 	${CMAKE_SOURCE_DIR}/3rdparty/glad-0.1.34/include
-	${CMAKE_SOURCE_DIR}/3rdparty/glfw-3.3.2/include
-	${CMAKE_SOURCE_DIR}/3rdparty/spirv/include
+	${CMAKE_SOURCE_DIR}/3rdparty/glfw-3.3.4/include
+	#${CMAKE_SOURCE_DIR}/3rdparty/spirv/include
 )
 
 # 3rdparty sources
@@ -59,8 +59,8 @@ file(GLOB_RECURSE 3RDPARTY_SOURCE_FILES
 
 # 3rdparty libs
 link_directories(
-	${CMAKE_SOURCE_DIR}/3rdparty/glfw-3.3.2/lib/${PLATFORM_FOLDER}
-	${CMAKE_SOURCE_DIR}/3rdparty/spirv/lib/${PLATFORM_FOLDER}
+	${CMAKE_SOURCE_DIR}/3rdparty/glfw-3.3.4/lib/${PLATFORM_FOLDER}
+	#${CMAKE_SOURCE_DIR}/3rdparty/spirv/lib/${PLATFORM_FOLDER}
 )
 
 # 3rdparty link
@@ -86,43 +86,44 @@ set(SOURCE_FILES
 )
 
 # List projects
-add_executable(${PROJECT_NAME}_01 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_01.cpp)
-add_executable(${PROJECT_NAME}_02 ${3RDPARTY_SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_02.cpp)
-add_executable(${PROJECT_NAME}_03 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_03.cpp)
-add_executable(${PROJECT_NAME}_04 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_04.cpp)
-add_executable(${PROJECT_NAME}_05 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_05.cpp)
-add_executable(${PROJECT_NAME}_06 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_06.cpp)
-add_executable(${PROJECT_NAME}_07 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_07.cpp)
-add_executable(${PROJECT_NAME}_08 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_08.cpp)
-add_executable(${PROJECT_NAME}_09 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_09.cpp)
-add_executable(${PROJECT_NAME}_10 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_10.cpp)
-add_executable(${PROJECT_NAME}_11 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_11.cpp)
-add_executable(${PROJECT_NAME}_12 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_12.cpp)
-add_executable(${PROJECT_NAME}_13 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_13.cpp)
-add_executable(${PROJECT_NAME}_14 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_14.cpp)
-add_executable(${PROJECT_NAME}_15 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_15.cpp)
-add_executable(${PROJECT_NAME}_16 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_16.cpp)
+# add_executable(${PROJECT_NAME}_01 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_01.cpp)
+# add_executable(${PROJECT_NAME}_02 ${3RDPARTY_SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_02.cpp)
+# add_executable(${PROJECT_NAME}_03 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_03.cpp)
+# add_executable(${PROJECT_NAME}_04 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_04.cpp)
+# add_executable(${PROJECT_NAME}_05 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_05.cpp)
+# add_executable(${PROJECT_NAME}_06 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_06.cpp)
+# add_executable(${PROJECT_NAME}_07 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_07.cpp)
+# add_executable(${PROJECT_NAME}_08 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_08.cpp)
+# add_executable(${PROJECT_NAME}_09 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_09.cpp)
+# add_executable(${PROJECT_NAME}_10 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_10.cpp)
+# add_executable(${PROJECT_NAME}_11 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_11.cpp)
+# add_executable(${PROJECT_NAME}_12 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_12.cpp)
+# add_executable(${PROJECT_NAME}_13 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_13.cpp)
+# add_executable(${PROJECT_NAME}_14 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_14.cpp)
+# add_executable(${PROJECT_NAME}_15 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_15.cpp)
+# add_executable(${PROJECT_NAME}_16 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_16.cpp)
 
-add_executable(example_01 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_01.cpp)
-add_executable(example_02 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_02.cpp)
-add_executable(example_03 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_03.cpp)
-add_executable(example_04 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_04.cpp)
-add_executable(example_05 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_05.cpp)
-add_executable(example_06 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_06.cpp)
-add_executable(example_07 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_07.cpp)
-add_executable(example_08 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_08.cpp)
-add_executable(example_09 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_09.cpp)
-add_executable(example_10 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_10.cpp)
-add_executable(example_11 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_11.cpp)
-add_executable(example_12 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_12.cpp)
-add_executable(example_13 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_13.cpp)
-add_executable(example_14 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_14.cpp)
-add_executable(example_15 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_15.cpp)
-add_executable(example_16 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_16.cpp)
-add_executable(example_17 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_17.cpp)
-add_executable(example_18 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_18.cpp)
-add_executable(example_19 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_19.cpp)
-add_executable(example_20 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_20.cpp)
+# add_executable(example_01 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_01.cpp)
+# add_executable(example_02 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_02.cpp)
+# add_executable(example_03 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_03.cpp)
+# add_executable(example_04 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_04.cpp)
+# add_executable(example_05 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_05.cpp)
+# add_executable(example_06 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_06.cpp)
+# add_executable(example_07 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_07.cpp)
+# add_executable(example_08 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_08.cpp)
+# add_executable(example_09 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_09.cpp)
+# add_executable(example_10 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_10.cpp)
+# add_executable(example_11 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_11.cpp)
+# add_executable(example_12 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_12.cpp)
+# add_executable(example_13 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_13.cpp)
+# add_executable(example_14 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_14.cpp)
+# add_executable(example_15 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_15.cpp)
+# add_executable(example_16 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_16.cpp)
+# add_executable(example_17 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_17.cpp)
+# add_executable(example_18 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_18.cpp)
+# add_executable(example_19 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_19.cpp)
+# add_executable(example_20 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_20.cpp)
+add_executable(example_21 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_21.cpp)
 
 # Data
 if (EXISTS ${CMAKE_SOURCE_DIR}/data)
@@ -169,5 +170,9 @@ add_custom_command(TARGET  example_16 PRE_BUILD
 add_custom_command(TARGET  example_17 PRE_BUILD
 				   COMMAND ${CMAKE_COMMAND} -E copy_directory
 				   ${CMAKE_SOURCE_DIR}/data $<TARGET_FILE_DIR:example_17>/data
+)
+add_custom_command(TARGET  example_21 PRE_BUILD
+				   COMMAND ${CMAKE_COMMAND} -E copy_directory
+				   ${CMAKE_SOURCE_DIR}/data $<TARGET_FILE_DIR:example_21>/data
 )
 endif()
