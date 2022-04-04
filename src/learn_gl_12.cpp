@@ -18,14 +18,14 @@ float uvs[] = {
 };
 
 float offsets[] = {
-    0*0.01f, 0*0.01f,
-    1*0.01f, 1*0.01f,
-    2*0.01f, 2*0.01f,
-    3*0.01f, 3*0.01f,
-    4*0.01f, 4*0.01f,
-    5*0.01f, 5*0.01f,
-    6*0.01f, 6*0.01f,
-    7*0.01f, 7*0.01f,
+	0*0.01f, 0*0.01f,
+	1*0.01f, 1*0.01f,
+	2*0.01f, 2*0.01f,
+	3*0.01f, 3*0.01f,
+	4*0.01f, 4*0.01f,
+	5*0.01f, 5*0.01f,
+	6*0.01f, 6*0.01f,
+	7*0.01f, 7*0.01f,
 };
 
 unsigned int indices[] = {  // note that we start from 0!
@@ -117,14 +117,14 @@ auto init() -> bool
 				glEnableVertexAttribArray(2);
 				glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (GLvoid*)0);
 
-        GLuint VBO3;
+		GLuint VBO3;
 		glGenBuffers(1, &VBO3);
 		std::cout << "VBO3: " << VBO3 << std::endl;
 		glBindBuffer(GL_ARRAY_BUFFER, VBO3);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(offsets), offsets, GL_STATIC_DRAW);
 				glEnableVertexAttribArray(3);
 				glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (GLvoid*)0);
-                glVertexAttribDivisor(3, 1);
+				glVertexAttribDivisor(3, 1);
 
 		GLuint EBO;
 		glGenBuffers(1, &EBO);
@@ -192,7 +192,7 @@ auto draw() -> void
 	glUseProgram(gProgram);
 	glBindVertexArray(gVAO);
 	//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, 8);
+	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, 8);
 }
 
 auto main() -> int

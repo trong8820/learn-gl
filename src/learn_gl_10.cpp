@@ -59,29 +59,29 @@ out vec2 gTexCoord;
 
 void main()
 {
-    gColor = vColor[0];
-    gTexCoord = vTexCoord[0];
-    gl_Position = gl_in[0].gl_Position + vec4(-0.1, 0.0, 0.0, 0.0); 
-    EmitVertex();
+	gColor = vColor[0];
+	gTexCoord = vTexCoord[0];
+	gl_Position = gl_in[0].gl_Position + vec4(-0.1, 0.0, 0.0, 0.0);
+	EmitVertex();
 
-    gColor = vec4(0.0, 1.0, 0.0, 1.0);
-    gTexCoord = vTexCoord[0];
-    gl_Position = gl_in[0].gl_Position + vec4( 0.1, 0.0, 0.0, 0.0);
-    EmitVertex();
-    
-    EndPrimitive();
+	gColor = vec4(0.0, 1.0, 0.0, 1.0);
+	gTexCoord = vTexCoord[0];
+	gl_Position = gl_in[0].gl_Position + vec4( 0.1, 0.0, 0.0, 0.0);
+	EmitVertex();
 
-    gColor = vColor[0];
-    gTexCoord = vTexCoord[0];
-    gl_Position = gl_in[0].gl_Position + vec4(0.0, -0.1, 0.0, 0.0); 
-    EmitVertex();
+	EndPrimitive();
 
-    gColor = vec4(0.0, 1.0, 0.0, 1.0);
-    gTexCoord = vTexCoord[0];
-    gl_Position = gl_in[0].gl_Position + vec4(0.0, 0.1, 0.0, 0.0);
-    EmitVertex();
-    
-    EndPrimitive();
+	gColor = vColor[0];
+	gTexCoord = vTexCoord[0];
+	gl_Position = gl_in[0].gl_Position + vec4(0.0, -0.1, 0.0, 0.0);
+	EmitVertex();
+
+	gColor = vec4(0.0, 1.0, 0.0, 1.0);
+	gTexCoord = vTexCoord[0];
+	gl_Position = gl_in[0].gl_Position + vec4(0.0, 0.1, 0.0, 0.0);
+	EmitVertex();
+
+	EndPrimitive();
 }
 )";
 
@@ -98,7 +98,7 @@ out vec4 FragColor;
 void main()
 {
 	//FragColor = vColor * texture(texture0, vTexCoord);
-    FragColor = gColor;
+	FragColor = gColor;
 }
 )";
 
@@ -112,9 +112,9 @@ auto init() -> bool
 	glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
 	glCompileShader(vertexShader);
 
-    auto geometryShader = glCreateShader(GL_GEOMETRY_SHADER);
-    glShaderSource(geometryShader, 1, &geometryShaderSource, nullptr);
-    glCompileShader(geometryShader);
+	auto geometryShader = glCreateShader(GL_GEOMETRY_SHADER);
+	glShaderSource(geometryShader, 1, &geometryShaderSource, nullptr);
+	glCompileShader(geometryShader);
 
 	auto fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
@@ -122,7 +122,7 @@ auto init() -> bool
 
 	gProgram = glCreateProgram();
 	glAttachShader(gProgram, vertexShader);
-    glAttachShader(gProgram, geometryShader);
+	glAttachShader(gProgram, geometryShader);
 	glAttachShader(gProgram, fragmentShader);
 	glLinkProgram(gProgram);
 
@@ -216,7 +216,7 @@ auto draw() -> void
 
 	glUseProgram(gProgram);
 	glBindVertexArray(gVAO);
-    glDrawArrays(GL_POINTS, 0, 4);
+	glDrawArrays(GL_POINTS, 0, 4);
 	//glDrawElements(GL_POINTS, 6, GL_UNSIGNED_INT, 0);
 }
 

@@ -32,12 +32,12 @@ layout (local_size_x = 16, local_size_y = 16) in;
 void main()
 {
 	ivec2 storePos = ivec2(gl_GlobalInvocationID.xy);
-    //float localCoef = length(vec2(ivec2(gl_LocalInvocationID.xy)-8)/8.0);
-    //float globalCoef = sin(float(gl_WorkGroupID.x+gl_WorkGroupID.y)*0.1)*0.5;
-    //imageStore(destTex, storePos, vec4(1.0-globalCoef*localCoef, 0.0, 0.0, 0.0));
-    ivec2 id = ivec2(gl_LocalInvocationID.xy);
-    float r = storePos.x & storePos.y;
-    imageStore(destTex, storePos, vec4(r, 0.0, 0.0, 0.0));
+	//float localCoef = length(vec2(ivec2(gl_LocalInvocationID.xy)-8)/8.0);
+	//float globalCoef = sin(float(gl_WorkGroupID.x+gl_WorkGroupID.y)*0.1)*0.5;
+	//imageStore(destTex, storePos, vec4(1.0-globalCoef*localCoef, 0.0, 0.0, 0.0));
+	ivec2 id = ivec2(gl_LocalInvocationID.xy);
+	float r = storePos.x & storePos.y;
+	imageStore(destTex, storePos, vec4(r, 0.0, 0.0, 0.0));
 }
 )";
 
@@ -71,9 +71,9 @@ out vec4 FragColor;
 
 void main()
 {
-    float red = texture(texture0, vTexCoord).r;
+	float red = texture(texture0, vTexCoord).r;
 	//FragColor = vColor * texture(texture0, vTexCoord);
-    FragColor = vec4(red, 0.0, 0.0, 1.0);
+	FragColor = vec4(red, 0.0, 0.0, 1.0);
 }
 )";
 
@@ -84,28 +84,28 @@ GLuint gTexture;
 
 auto init() -> bool
 {
-    auto computeShader = glCreateShader(GL_COMPUTE_SHADER);
-    glShaderSource(computeShader, 1, &computeShaderSource, nullptr);
-    glCompileShader(computeShader);
+	auto computeShader = glCreateShader(GL_COMPUTE_SHADER);
+	glShaderSource(computeShader, 1, &computeShaderSource, nullptr);
+	glCompileShader(computeShader);
 
-    int rvalue;
-    glGetShaderiv(computeShader, GL_COMPILE_STATUS, &rvalue);
-    if (!rvalue) {
-        fprintf(stderr, "Error in compiling the compute shader\n");
-        GLchar log[10240];
-        GLsizei length;
-        glGetShaderInfoLog(computeShader, 10239, &length, log);
-        fprintf(stderr, "Compiler log:\n%s\n", log);
-        exit(40);
-    }
+	int rvalue;
+	glGetShaderiv(computeShader, GL_COMPILE_STATUS, &rvalue);
+	if (!rvalue) {
+		fprintf(stderr, "Error in compiling the compute shader\n");
+		GLchar log[10240];
+		GLsizei length;
+		glGetShaderInfoLog(computeShader, 10239, &length, log);
+		fprintf(stderr, "Compiler log:\n%s\n", log);
+		exit(40);
+	}
 
-    gComputeProgram = glCreateProgram();
-    glAttachShader(gComputeProgram, computeShader);
-    glLinkProgram(gComputeProgram);
+	gComputeProgram = glCreateProgram();
+	glAttachShader(gComputeProgram, computeShader);
+	glLinkProgram(gComputeProgram);
 
-    glDeleteShader(gComputeProgram);
+	glDeleteShader(gComputeProgram);
 
-    // ----
+	// ----
 	auto vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
 	glCompileShader(vertexShader);
@@ -193,12 +193,12 @@ auto init() -> bool
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, 512, 512, 0, GL_RED, GL_FLOAT, NULL);
 
-    glBindImageTexture(0, gTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);
+	glBindImageTexture(0, gTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);
 
-    glUseProgram(gComputeProgram);
+	glUseProgram(gComputeProgram);
 	glUniform1i(glGetUniformLocation(gComputeProgram, "destTex"), 0);
 
-    glDispatchCompute(512/16, 512/16, 1);
+	glDispatchCompute(512/16, 512/16, 1);
 
 	return true;
 }

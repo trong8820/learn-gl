@@ -100,45 +100,45 @@ in vec3 vPos[];
 
 void EmitLine(int StartIndex, int EndIndex)
 {
-    gl_Position = gl_in[StartIndex].gl_Position;
-    EmitVertex();
+	gl_Position = gl_in[StartIndex].gl_Position;
+	EmitVertex();
 
-    gl_Position = gl_in[EndIndex].gl_Position;
-    EmitVertex();
+	gl_Position = gl_in[EndIndex].gl_Position;
+	EmitVertex();
 
-    EndPrimitive();
+	EndPrimitive();
 }
 
 void main()
 {
 	vec3 e1 = vPos[2] - vPos[0];
-    vec3 e2 = vPos[4] - vPos[0];
-    vec3 e3 = vPos[1] - vPos[0];
-    vec3 e4 = vPos[3] - vPos[2];
-    vec3 e5 = vPos[4] - vPos[2];
-    vec3 e6 = vPos[5] - vPos[0];
+	vec3 e2 = vPos[4] - vPos[0];
+	vec3 e3 = vPos[1] - vPos[0];
+	vec3 e4 = vPos[3] - vPos[2];
+	vec3 e5 = vPos[4] - vPos[2];
+	vec3 e6 = vPos[5] - vPos[0];
 
 	vec3 lightPos = vec3(-3.0, 5.0, -1.0);
 	vec3 faceNormal = cross(e1, e2);
-    vec3 lightDir = lightPos - vPos[0];
-	if (dot(faceNormal, lightDir) > 0.00001) 
+	vec3 lightDir = lightPos - vPos[0];
+	if (dot(faceNormal, lightDir) > 0.00001)
 	{
 		faceNormal = cross(e3, e1);
-		if (dot(faceNormal, lightDir) <= 0.0) 
+		if (dot(faceNormal, lightDir) <= 0.0)
 		{
 			EmitLine(0, 2);
 		}
 
 		faceNormal = cross(e4, e5);
 		lightDir = lightPos - vPos[2];
-		if (dot(faceNormal, lightDir) <= 0.0) 
+		if (dot(faceNormal, lightDir) <= 0.0)
 		{
 			EmitLine(2, 4);
 		}
 
 		faceNormal = cross(e2, e6);
 		lightDir = lightPos - vPos[4];
-		if (dot(faceNormal, lightDir) <= 0.0) 
+		if (dot(faceNormal, lightDir) <= 0.0)
 		{
 			EmitLine(4, 0);
 		}
@@ -184,7 +184,7 @@ auto init() -> bool
 				unsigned int k0 = indices[k*3 + 0];
 				unsigned int k1 = indices[k*3 + 1];
 				unsigned int k2 = indices[k*3 + 2];
-				
+
 				if ((k0 == id0 && k1 == id1) || (k1 == id0 && k0 == id1))
 				{
 					indices_adj[id++] = k2;
@@ -330,7 +330,7 @@ auto draw() -> void
 
 	glUniformMatrix4fv(gWorldLoc, 1, false, world1.m);
 	glDrawElements(GL_TRIANGLES_ADJACENCY, 72, GL_UNSIGNED_INT, 0);
-	
+
 
 	glDepthFunc(GL_ALWAYS);
 	glUseProgram(gSilhouetteProgram);
@@ -338,7 +338,7 @@ auto draw() -> void
 
 	glUniformMatrix4fv(gSilhouetteWorldLoc, 1, false, world1.m);
 	glDrawElements(GL_TRIANGLES_ADJACENCY, 72, GL_UNSIGNED_INT, 0);
-	glDepthFunc(GL_LESS);  
+	glDepthFunc(GL_LESS);
 }
 
 auto main() -> int

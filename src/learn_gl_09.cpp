@@ -87,41 +87,41 @@ GLuint gTexture;
 
 auto init() -> bool
 {
-    {
-        auto vertexShader = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
-        glCompileShader(vertexShader);
+	{
+		auto vertexShader = glCreateShader(GL_VERTEX_SHADER);
+		glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
+		glCompileShader(vertexShader);
 
-        auto fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
-        glCompileShader(fragmentShader);
+		auto fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+		glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
+		glCompileShader(fragmentShader);
 
-        gProgram = glCreateProgram();
-        glAttachShader(gProgram, vertexShader);
-        glAttachShader(gProgram, fragmentShader);
-        glLinkProgram(gProgram);
+		gProgram = glCreateProgram();
+		glAttachShader(gProgram, vertexShader);
+		glAttachShader(gProgram, fragmentShader);
+		glLinkProgram(gProgram);
 
-        glDeleteShader(vertexShader);
-        glDeleteShader(fragmentShader);
-    }
+		glDeleteShader(vertexShader);
+		glDeleteShader(fragmentShader);
+	}
 
-    {
-        auto vertexShader = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vertexShader, 1, &vertexShaderSource1, nullptr);
-        glCompileShader(vertexShader);
+	{
+		auto vertexShader = glCreateShader(GL_VERTEX_SHADER);
+		glShaderSource(vertexShader, 1, &vertexShaderSource1, nullptr);
+		glCompileShader(vertexShader);
 
-        auto fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
-        glCompileShader(fragmentShader);
+		auto fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+		glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
+		glCompileShader(fragmentShader);
 
-        gProgram1 = glCreateProgram();
-        glAttachShader(gProgram1, vertexShader);
-        glAttachShader(gProgram1, fragmentShader);
-        glLinkProgram(gProgram1);
+		gProgram1 = glCreateProgram();
+		glAttachShader(gProgram1, vertexShader);
+		glAttachShader(gProgram1, fragmentShader);
+		glLinkProgram(gProgram1);
 
-        glDeleteShader(vertexShader);
-        glDeleteShader(fragmentShader);
-    }
+		glDeleteShader(vertexShader);
+		glDeleteShader(fragmentShader);
+	}
 
 	glGenVertexArrays(1, &gVAO);
 	std::cout << "VAO: " << gVAO << std::endl;
@@ -193,9 +193,9 @@ auto init() -> bool
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 2, 2, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
-    glEnable(GL_DEPTH_TEST); 
-    glEnable(GL_STENCIL_TEST); 
-    glStencilOp(GL_REPLACE, GL_KEEP, GL_KEEP);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_STENCIL_TEST);
+	glStencilOp(GL_REPLACE, GL_KEEP, GL_KEEP);
 
 	return true;
 }
@@ -212,21 +212,21 @@ auto draw() -> void
 	glClearColor(0.0f, 0.2f, 0.2f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-    //glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-    //glDepthMask(GL_FALSE);
-    glStencilFunc(GL_NEVER, 1, 0xFF);
-    glStencilMask(0xFF);
+	//glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+	//glDepthMask(GL_FALSE);
+	glStencilFunc(GL_NEVER, 1, 0xFF);
+	glStencilMask(0xFF);
 
 	glUseProgram(gProgram);
 	glBindVertexArray(gVAO);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-    //glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-    //glDepthMask(GL_TRUE);
-    glStencilFunc(GL_EQUAL, 0, 0xFF);
-    glStencilMask(0x00);
-    glUseProgram(gProgram1);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	//glDepthMask(GL_TRUE);
+	glStencilFunc(GL_EQUAL, 0, 0xFF);
+	glStencilMask(0x00);
+	glUseProgram(gProgram1);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
 auto main() -> int

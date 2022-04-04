@@ -7,7 +7,7 @@
 	_call; \
 	{ GLenum err; \
 	while ((err = glGetError()) != GL_NO_ERROR) { \
-        std::cout <<"GL error: "<< err <<" in "<< __FILE__ <<" "<< __FUNCTION__ <<" "<< __LINE__ <<" - for "<<#_call<<std::endl; \
+		std::cout <<"GL error: "<< err <<" in "<< __FILE__ <<" "<< __FUNCTION__ <<" "<< __LINE__ <<" - for "<<#_call<<std::endl; \
 	}}
 
 #define GL_CHECK_RETURN(_call) \

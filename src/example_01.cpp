@@ -95,7 +95,7 @@ void main()
 {
 	vec3 projCoords = vPosLightSpace.xyz / vPosLightSpace.w;
 	projCoords = projCoords * 0.5 + 0.5;
-	float closestDepth = texture(shadowMap, projCoords.xy).r; 
+	float closestDepth = texture(shadowMap, projCoords.xy).r;
 	float shadow = projCoords.z - 0.0001 > closestDepth ? 0.3 : 1.0;
 	FragColor = vec4(vColor*shadow, 1.0);
 }
@@ -174,7 +174,7 @@ auto init() -> bool
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); 
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 	glGenFramebuffers(1, &gDepthFBO);
@@ -182,7 +182,7 @@ auto init() -> bool
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, gDepthMap, 0);
 	glDrawBuffer(GL_NONE);
 	glReadBuffer(GL_NONE);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);  
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	glUseProgram(gShadowProgram);
 	GLint shadownLightSpaceLoc = glGetUniformLocation(gShadowProgram, "lightSpace");
@@ -239,7 +239,7 @@ auto draw() -> void
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glUseProgram(gShadowProgram);
 		glBindVertexArray(gVAO);
-		
+
 		glUniformMatrix4fv(gWorldLoc, 1, false, world1.m);
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 

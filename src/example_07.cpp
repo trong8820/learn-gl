@@ -135,94 +135,94 @@ in vec3 vPos[];
 
 void EmitQuad(vec3 startVertex, vec3 endVertex)
 {
-    mat4 vp = proj * view;
-    vec3 lightDir = normalize(startVertex - lightPos);   
-    gl_Position = vp * vec4((startVertex + lightDir * EPSILON), 1.0);
-    EmitVertex();
+	mat4 vp = proj * view;
+	vec3 lightDir = normalize(startVertex - lightPos);
+	gl_Position = vp * vec4((startVertex + lightDir * EPSILON), 1.0);
+	EmitVertex();
 
-    //gl_Position = vp * vec4(lightPos, 0.0);
-    gl_Position = vp * vec4((startVertex + lightDir * 10.0), 1.0);
-    EmitVertex();
+	//gl_Position = vp * vec4(lightPos, 0.0);
+	gl_Position = vp * vec4((startVertex + lightDir * 10.0), 1.0);
+	EmitVertex();
 
-    lightDir = normalize(endVertex - lightPos);
-    gl_Position = vp * vec4((endVertex + lightDir * EPSILON), 1.0);
-    EmitVertex();
+	lightDir = normalize(endVertex - lightPos);
+	gl_Position = vp * vec4((endVertex + lightDir * EPSILON), 1.0);
+	EmitVertex();
 
-    //gl_Position = vp * vec4(lightDir, 0.0);
-    gl_Position = vp * vec4((endVertex + lightDir * 10.0), 1.0);
-    EmitVertex();
+	//gl_Position = vp * vec4(lightDir, 0.0);
+	gl_Position = vp * vec4((endVertex + lightDir * 10.0), 1.0);
+	EmitVertex();
 
-    EndPrimitive();
+	EndPrimitive();
 }
 
 void main()
 {
-    mat4 vp = proj * view;
+	mat4 vp = proj * view;
 
 	vec3 e1 = vPos[2] - vPos[0];
-    vec3 e2 = vPos[4] - vPos[0];
-    vec3 e3 = vPos[1] - vPos[0];
-    vec3 e4 = vPos[3] - vPos[2];
-    vec3 e5 = vPos[4] - vPos[2];
-    vec3 e6 = vPos[5] - vPos[0];
+	vec3 e2 = vPos[4] - vPos[0];
+	vec3 e3 = vPos[1] - vPos[0];
+	vec3 e4 = vPos[3] - vPos[2];
+	vec3 e5 = vPos[4] - vPos[2];
+	vec3 e6 = vPos[5] - vPos[0];
 
 	vec3 faceNormal = cross(e1, e2);
-    vec3 lightDir = lightPos - vPos[0];
-	if (dot(faceNormal, lightDir) > 0.00001) 
+	vec3 lightDir = lightPos - vPos[0];
+	if (dot(faceNormal, lightDir) > 0.00001)
 	{
 		faceNormal = cross(e3, e1);
-		if (dot(faceNormal, lightDir) <= 0.0) 
+		if (dot(faceNormal, lightDir) <= 0.0)
 		{
-            vec3 startVertex = vPos[0];
-            vec3 endVertex = vPos[2];
+			vec3 startVertex = vPos[0];
+			vec3 endVertex = vPos[2];
 			EmitQuad(startVertex, endVertex);
 		}
 
 		faceNormal = cross(e4, e5);
 		lightDir = lightPos - vPos[2];
-		if (dot(faceNormal, lightDir) <= 0.0) 
+		if (dot(faceNormal, lightDir) <= 0.0)
 		{
 			vec3 startVertex = vPos[2];
-            vec3 endVertex = vPos[4];
+			vec3 endVertex = vPos[4];
 			EmitQuad(startVertex, endVertex);
 		}
 
 		faceNormal = cross(e2, e6);
 		lightDir = lightPos - vPos[4];
-		if (dot(faceNormal, lightDir) <= 0.0) 
+		if (dot(faceNormal, lightDir) <= 0.0)
 		{
 			vec3 startVertex = vPos[4];
-            vec3 endVertex = vPos[0];
+			vec3 endVertex = vPos[0];
 			EmitQuad(startVertex, endVertex);
 		}
 
-        // render the front cap
-        lightDir = (normalize(vPos[0] - lightPos));
-        gl_Position = vp * vec4((vPos[0] + lightDir * EPSILON), 1.0);
-        EmitVertex();
+		// render the front cap
+		lightDir = (normalize(vPos[0] - lightPos));
+		gl_Position = vp * vec4((vPos[0] + lightDir * EPSILON), 1.0);
+		EmitVertex();
 
-        lightDir = (normalize(vPos[2] - lightPos));
-        gl_Position = vp * vec4((vPos[2] + lightDir * EPSILON), 1.0);
-        EmitVertex();
-
-        lightDir = (normalize(vPos[4] - lightPos));
-        gl_Position = vp * vec4((vPos[4] + lightDir * EPSILON), 1.0);
-        EmitVertex();
-        EndPrimitive();
-
-        // render the back cap
-        lightDir = (normalize(vPos[0] - lightPos));
-        gl_Position = vp * vec4((vPos[0] + lightDir * 10.0), 1.0);
-        EmitVertex();
+		lightDir = (normalize(vPos[2] - lightPos));
+		gl_Position = vp * vec4((vPos[2] + lightDir * EPSILON), 1.0);
+		EmitVertex();
 
 		lightDir = (normalize(vPos[4] - lightPos));
-        gl_Position = vp * vec4((vPos[4] + lightDir * 10.0), 1.0);
-        EmitVertex();
+		gl_Position = vp * vec4((vPos[4] + lightDir * EPSILON), 1.0);
+		EmitVertex();
+		EndPrimitive();
 
-        lightDir = (normalize(vPos[2] - lightPos));
-        gl_Position = vp * vec4((vPos[2] + lightDir * 10.0), 1.0);
-        EmitVertex();
-        EndPrimitive();
+		// render the back cap
+		lightDir = (normalize(vPos[0] - lightPos));
+		gl_Position = vp * vec4((vPos[0] + lightDir * 10.0), 1.0);
+		EmitVertex();
+
+		lightDir = (normalize(vPos[4] - lightPos));
+		gl_Position = vp * vec4((vPos[4] + lightDir * 10.0), 1.0);
+		EmitVertex();
+
+		lightDir = (normalize(vPos[2] - lightPos));
+		gl_Position = vp * vec4((vPos[2] + lightDir * 10.0), 1.0);
+		EmitVertex();
+		EndPrimitive();
 	}
 }
 )";
@@ -267,7 +267,7 @@ auto init() -> bool
 				unsigned int k0 = indices[k*3 + 0];
 				unsigned int k1 = indices[k*3 + 1];
 				unsigned int k2 = indices[k*3 + 2];
-				
+
 				if ((k0 == id0 && k1 == id1) || (k1 == id0 && k0 == id1))
 				{
 					indices_adj[id++] = k2;
@@ -308,7 +308,7 @@ auto init() -> bool
 		GL_CHECK(glDeleteShader(fragmentShader));
 	}
 
-    {
+	{
 		auto vertexShader = GL_CHECK_RETURN(glCreateShader(GL_VERTEX_SHADER));
 		GL_CHECK(glShaderSource(vertexShader, 1, &nullVertexShaderSource, NULL));
 		GL_CHECK(glCompileShader(vertexShader));
@@ -369,7 +369,7 @@ auto init() -> bool
 	glUseProgram(gProgram);
 	gWorldLoc = glGetUniformLocation(gProgram, "world");
 
-    glUseProgram(gNullProgram);
+	glUseProgram(gNullProgram);
 	gNullWorldLoc = glGetUniformLocation(gNullProgram, "world");
 
 	glUseProgram(gSilhouetteProgram);
@@ -377,11 +377,11 @@ auto init() -> bool
 
 	on_size();
 
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_STENCIL_TEST);
-    glDepthFunc(GL_LEQUAL);
+	glDepthFunc(GL_LEQUAL);
 
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
@@ -406,7 +406,7 @@ void on_size()
 		glUniformMatrix4fv(projLoc, 1, false, proj.m);
 	}
 
-    {
+	{
 		glUseProgram(gNullProgram);
 		GLint viewLoc = glGetUniformLocation(gNullProgram, "view");
 		GLint projLoc = glGetUniformLocation(gNullProgram, "proj");
@@ -439,33 +439,33 @@ auto draw() -> void
 	mat4 world2 = mat4::scale(6.0f, 0.1f, 6.0f) * mat4::translate(0.0f, -0.5f, 0.0f);
 
 	glViewport(0, 0, gWidth, gHeight);
-    glDepthMask(GL_TRUE);
+	glDepthMask(GL_TRUE);
 	glStencilMask(0xFF);
 	glClearColor(0.0f, 0.2f, 0.2f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glStencilMask(0x00);
 
 	/*
-    // pass 1
-    glDrawBuffer(GL_NONE);
+	// pass 1
+	glDrawBuffer(GL_NONE);
 	glUseProgram(gNullProgram);
 	glBindVertexArray(gVAO);
 
 	glUniformMatrix4fv(gNullWorldLoc, 1, false, world1.m);
 	glDrawElements(GL_TRIANGLES_ADJACENCY, 72, GL_UNSIGNED_INT, 0);
 
-    // pass 2
+	// pass 2
 	//glDrawBuffer(GL_NONE);
-    glDepthMask(GL_FALSE);
+	glDepthMask(GL_FALSE);
 
-	glCullFace(GL_FRONT_AND_BACK); 
+	glCullFace(GL_FRONT_AND_BACK);
 
-    //glStencilFunc(GL_ALWAYS, 0, 0xFF);
+	//glStencilFunc(GL_ALWAYS, 0, 0xFF);
 	//glStencilMask(0xFF);
-    glStencilMask(0xFF);
+	glStencilMask(0xFF);
 	glStencilFunc(GL_NEVER, 1, 0xFF);
-    //glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
-    //glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
+	//glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
+	//glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
 
 	glUseProgram(gSilhouetteProgram);
 	glBindVertexArray(gVAO);
@@ -473,19 +473,19 @@ auto draw() -> void
 	glUniformMatrix4fv(gSilhouetteWorldLoc, 1, false, world1.m);
 	glDrawElements(GL_TRIANGLES_ADJACENCY, 72, GL_UNSIGNED_INT, 0);
 
-    // pass 3
-    glDrawBuffer(GL_BACK);
-    glStencilFunc(GL_EQUAL, 0x0, 0xFF);
+	// pass 3
+	glDrawBuffer(GL_BACK);
+	glStencilFunc(GL_EQUAL, 0x0, 0xFF);
 	glStencilMask(0x00);
-    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-    glUseProgram(gProgram);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+	glUseProgram(gProgram);
 	glBindVertexArray(gVAO);
 
 	glUniformMatrix4fv(gWorldLoc, 1, false, world1.m);
 	glDrawElements(GL_TRIANGLES_ADJACENCY, 72, GL_UNSIGNED_INT, 0);
 
-    // pass 4
-    glUseProgram(gProgram);
+	// pass 4
+	glUseProgram(gProgram);
 	glBindVertexArray(gVAO);
 
 	glUniformMatrix4fv(gWorldLoc, 1, false, world1.m);
@@ -501,7 +501,7 @@ auto draw() -> void
 	glDrawElements(GL_TRIANGLES_ADJACENCY, 72, GL_UNSIGNED_INT, 0);
 	glUniformMatrix4fv(gNullWorldLoc, 1, false, world2.m);
 	glDrawElements(GL_TRIANGLES_ADJACENCY, 72, GL_UNSIGNED_INT, 0);
-	
+
 	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 	//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	glDepthMask(GL_FALSE);
@@ -520,7 +520,7 @@ auto draw() -> void
 	glUniformMatrix4fv(gSilhouetteWorldLoc, 1, false, world2.m);
 	glDrawElements(GL_TRIANGLES_ADJACENCY, 72, GL_UNSIGNED_INT, 0);
 	glStencilMask(0x00);
-	
+
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	glDepthMask(GL_TRUE);
 	glEnable(GL_CULL_FACE);

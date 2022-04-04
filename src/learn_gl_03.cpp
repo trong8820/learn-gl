@@ -175,7 +175,7 @@ auto draw() -> void
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	if (gDepth > 0.0f) 
+	if (gDepth > 0.0f)
 	{
 		gDepth = 0.0f;
 	} else {
@@ -202,13 +202,13 @@ auto draw() -> void
 
 	glEndQuery(GL_TIME_ELAPSED);
 	GLuint stopTimerAvailable = 0;
-	while (!stopTimerAvailable) 
+	while (!stopTimerAvailable)
 	{
 		glGetQueryObjectuiv(query, GL_QUERY_RESULT_AVAILABLE, &stopTimerAvailable);
 	}
 
 	glGetQueryObjectui64v(query, GL_QUERY_RESULT, &elapsed_time);
-	
+
 	std::cout << "Milliseconds: " << elapsed_time / 1000000.0 << std::endl;
 }
 

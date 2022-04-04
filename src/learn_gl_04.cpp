@@ -32,7 +32,7 @@ float gVertices[200];
 
 auto init() -> bool
 {
-    auto vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	auto vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
 	glCompileShader(vertexShader);
 
@@ -48,47 +48,47 @@ auto init() -> bool
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
 
-    glGenVertexArrays(1, &gVAO);
-    glBindVertexArray(gVAO);
+	glGenVertexArrays(1, &gVAO);
+	glBindVertexArray(gVAO);
 		glGenBuffers(1, &gVBO);
-        glBindBuffer(GL_ARRAY_BUFFER, gVBO);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(gVertices), NULL, GL_DYNAMIC_DRAW);
-            glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, gVBO);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(gVertices), NULL, GL_DYNAMIC_DRAW);
+			glEnableVertexAttribArray(0);
 				glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (GLvoid*)0);
-        glBindBuffer(GL_ARRAY_BUFFER, 0); 
-    glBindVertexArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
 
-    return true;
+	return true;
 }
 
 float scale = 1.0f;
 
 auto update() -> void
 {
-    scale += 0.01f;
-    if (scale > 20.0f) scale = 1.0f;
+	scale += 0.01f;
+	if (scale > 20.0f) scale = 1.0f;
 
-    for (size_t i = 0; i < 100; i++)
-    {
-        float x = (static_cast<int>(i) - 50)*0.01f;
-        gVertices[2*i + 0] = x;
-        gVertices[2*i + 1] = sin(x*scale);
-    }
+	for (size_t i = 0; i < 100; i++)
+	{
+		float x = (static_cast<int>(i) - 50)*0.01f;
+		gVertices[2*i + 0] = x;
+		gVertices[2*i + 1] = sin(x*scale);
+	}
 }
 
 auto draw() -> void
 {
-    glClearColor(0.0f, 0.2f, 0.2f, 1.0f);
+	glClearColor(0.0f, 0.2f, 0.2f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	glUseProgram(gProgram);
-    glBindVertexArray(gVAO);   
-        glBindBuffer(GL_ARRAY_BUFFER, gVBO);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(gVertices), NULL, GL_DYNAMIC_DRAW);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(gVertices), gVertices, GL_DYNAMIC_DRAW);
-        glBindBuffer(GL_ARRAY_BUFFER, 0); 
+	glBindVertexArray(gVAO);
+		glBindBuffer(GL_ARRAY_BUFFER, gVBO);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(gVertices), NULL, GL_DYNAMIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(gVertices), gVertices, GL_DYNAMIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    glDrawArrays(GL_LINE_STRIP, 0, 100);
+	glDrawArrays(GL_LINE_STRIP, 0, 100);
 }
 
 auto main() -> int

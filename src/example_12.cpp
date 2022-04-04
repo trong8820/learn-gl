@@ -1,4 +1,4 @@
-// Displacement Mapping with tessellation 
+// Displacement Mapping with tessellation
 
 #include <vector>
 #include <tuple>
@@ -52,8 +52,8 @@ out vec3 tcNormal[];
 
 void main()
 {
-    tcPos[gl_InvocationID] = vPos[gl_InvocationID];
-    tcUV[gl_InvocationID] = vUV[gl_InvocationID];
+	tcPos[gl_InvocationID] = vPos[gl_InvocationID];
+	tcUV[gl_InvocationID] = vUV[gl_InvocationID];
 	tcNormal[gl_InvocationID] = vNormal[gl_InvocationID];
 
 	if (gl_InvocationID == 0)
@@ -88,21 +88,21 @@ out vec3 teNormal;
 
 vec2 lerp2D(vec2 v0, vec2 v1, vec2 v2)
 {
-    return gl_TessCoord.x * v0 + gl_TessCoord.y * v1 + gl_TessCoord.z * v2;
+	return gl_TessCoord.x * v0 + gl_TessCoord.y * v1 + gl_TessCoord.z * v2;
 }
 
 vec3 lerp3D(vec3 v0, vec3 v1, vec3 v2)
 {
-    return gl_TessCoord.x * v0 + gl_TessCoord.y * v1 + gl_TessCoord.z * v2;
+	return gl_TessCoord.x * v0 + gl_TessCoord.y * v1 + gl_TessCoord.z * v2;
 }
 
 void main()
-{	
-    vec3 pos = normalize(lerp3D(tcPos[0], tcPos[1], tcPos[2]));
-    teUV = lerp2D(tcUV[0], tcUV[1], tcUV[2]);
+{
+	vec3 pos = normalize(lerp3D(tcPos[0], tcPos[1], tcPos[2]));
+	teUV = lerp2D(tcUV[0], tcUV[1], tcUV[2]);
 	teNormal = normalize(lerp3D(tcNormal[0], tcNormal[1], tcNormal[2]));
 
-	float height =  texture(heightMap, teUV).r; 
+	float height =  texture(heightMap, teUV).r;
 	pos += teNormal*(height - 0.8)*0.3;
 	teFragPos = vec3(world * vec4(pos, 1.0));
 	gl_Position = proj * view * world * vec4(pos, 1.0);
@@ -129,8 +129,8 @@ in vec3 teNormal;
 out vec4 FragColor;
 
 void main()
-{   
-	//float height =  texture(heightMap, teUV).r; 
+{
+	//float height =  texture(heightMap, teUV).r;
 	//FragColor = vec4(height, 0.0, 0.0, 1.0);
 
 	vec3 color = texture(diffuseMap, teUV).rgb;
@@ -168,7 +168,7 @@ auto init() -> bool
 	//std::cout << "init " << gWidth << " " << gHeight << std::endl;
 	auto vertexShader = GL_CHECK_RETURN(glCreateShader(GL_VERTEX_SHADER));
 	GL_CHECK(glShaderSource(vertexShader, 1, &vertexShaderSource, NULL));
-    GL_CHECK(glCompileShader(vertexShader));
+	GL_CHECK(glCompileShader(vertexShader));
 	{
 		GLint success;
 		GL_CHECK(glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success));
@@ -202,7 +202,7 @@ auto init() -> bool
 		}
 	}
 
-    auto teShader = glCreateShader(GL_TESS_EVALUATION_SHADER);
+	auto teShader = glCreateShader(GL_TESS_EVALUATION_SHADER);
 	glShaderSource(teShader, 1, &teShaderSource, nullptr);
 	GL_CHECK(glCompileShader(teShader));
 	{
@@ -222,7 +222,7 @@ auto init() -> bool
 
 	auto fragmentShader = GL_CHECK_RETURN(glCreateShader(GL_FRAGMENT_SHADER));
 	GL_CHECK(glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL));
-    GL_CHECK(glCompileShader(fragmentShader));
+	GL_CHECK(glCompileShader(fragmentShader));
 	{
 		GLint success;
 		GL_CHECK(glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success));
@@ -241,7 +241,7 @@ auto init() -> bool
 	gProgram = GL_CHECK_RETURN(glCreateProgram());
 	GL_CHECK(glAttachShader(gProgram, vertexShader));
 	GL_CHECK(glAttachShader(gProgram, tcShader));
-    GL_CHECK(glAttachShader(gProgram, teShader));
+	GL_CHECK(glAttachShader(gProgram, teShader));
 	GL_CHECK(glAttachShader(gProgram, fragmentShader));
 	GL_CHECK(glLinkProgram(gProgram));
 
@@ -293,7 +293,7 @@ auto init() -> bool
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    GLuint heightTexture;
+	GLuint heightTexture;
 	glGenTextures(1, &heightTexture);
 	glBindTexture(GL_TEXTURE_2D, heightTexture);
 	loadTexture("data/magicmoon_heightmap.jpg");
@@ -306,24 +306,24 @@ auto init() -> bool
 	glUseProgram(gProgram);
 	glUniform1i(glGetUniformLocation(gProgram, "diffuseMap"), 0);
 	glUniform1i(glGetUniformLocation(gProgram, "normalMap"), 1);
-    glUniform1i(glGetUniformLocation(gProgram, "heightMap"), 2);
+	glUniform1i(glGetUniformLocation(gProgram, "heightMap"), 2);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, diffuseTexture);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, normalTexture);
-    glActiveTexture(GL_TEXTURE2);
+	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, heightTexture);
 
-    gViewLoc = glGetUniformLocation(gProgram, "view");
-    gEyePosLoc = glGetUniformLocation(gProgram, "eyePos");
+	gViewLoc = glGetUniformLocation(gProgram, "view");
+	gEyePosLoc = glGetUniformLocation(gProgram, "eyePos");
 
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_DEPTH_TEST);
 
 	on_size();
 
-    glfwGetCursorPos(g_pWindow, &gPrevPosX, &gPrevPosY);
+	glfwGetCursorPos(g_pWindow, &gPrevPosX, &gPrevPosY);
 
 	return 0;
 }
@@ -368,7 +368,7 @@ void on_mouse(double xpos, double ypos)
 
 auto update() -> void
 {
-    gRotX += 0.05 * (gTargetRotX - gRotX);
+	gRotX += 0.05 * (gTargetRotX - gRotX);
 	gRotY += 0.05 * (gTargetRotY - gRotY);
 
 	vec4 eyePos = mat4::rotate(0.0f, 1.0f, 0.0f, -gRotX) * mat4::rotate(1.0f, 0.0f, 0.0f, -gRotY) * vec4(0.0f, 0.0f, 3.0f, 1.0f);
@@ -383,7 +383,7 @@ auto draw() -> void
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glUseProgram(gProgram);
-    glUniformMatrix4fv(gViewLoc, 1, false, gView.m);
+	glUniformMatrix4fv(gViewLoc, 1, false, gView.m);
 	glUniform3f(gEyePosLoc, gEyePos.x, gEyePos.y, gEyePos.z);
 	glBindVertexArray(gVAO);
 

@@ -3,21 +3,21 @@
 
 struct vec3
 {
-    float x{};
-    float y{};
-    float z{};
+	float x{};
+	float y{};
+	float z{};
 
-    // -- Implicit basic constructors --
-    constexpr vec3() = default;
-    constexpr vec3(vec3 const& v) = default;
+	// -- Implicit basic constructors --
+	constexpr vec3() = default;
+	constexpr vec3(vec3 const& v) = default;
 
-    // -- Explicit basic constructors --
-    constexpr vec3(float x, float y, float z);
+	// -- Explicit basic constructors --
+	constexpr vec3(float x, float y, float z);
 
-    static vec3 cross(vec3 const& lhs, vec3 const& rhs);
-    static float dot(vec3 const& lhs, vec3 const& rhs);
+	static vec3 cross(vec3 const& lhs, vec3 const& rhs);
+	static float dot(vec3 const& lhs, vec3 const& rhs);
 
-    vec3 normalize();
+	vec3 normalize();
 };
 
 constexpr vec3 operator+(vec3 const& v);

@@ -43,7 +43,7 @@ void main()
 {
 	vColor = aColor;
 	vTexCoord = aTexCoord;
-    vec2 offset = offsets[gl_InstanceID];
+	vec2 offset = offsets[gl_InstanceID];
 	gl_Position = vec4(aPos.x + offset.x, aPos.y + offset.y, 0.0, 1.0);
 }
 )";
@@ -155,16 +155,16 @@ auto init() -> bool
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 2, 2, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-        
-    glUseProgram(gProgram);
-    float offsets[16];
-    for (size_t i = 0; i < 8; i++)
-    {
-        offsets[i*2 + 0] = 0.01f*i;
-        offsets[i*2 + 1] = 0.01f*i;
-        //glUniform2f(glGetUniformLocation(gProgram, ("offsets[" + std::to_string(i) + "]").c_str()), 0.01f*i, 0.01f*i);
-    }
-    glUniform2fv(glGetUniformLocation(gProgram, "offsets"), 8, offsets);
+
+	glUseProgram(gProgram);
+	float offsets[16];
+	for (size_t i = 0; i < 8; i++)
+	{
+		offsets[i*2 + 0] = 0.01f*i;
+		offsets[i*2 + 1] = 0.01f*i;
+		//glUniform2f(glGetUniformLocation(gProgram, ("offsets[" + std::to_string(i) + "]").c_str()), 0.01f*i, 0.01f*i);
+	}
+	glUniform2fv(glGetUniformLocation(gProgram, "offsets"), 8, offsets);
 
 	return true;
 }
@@ -184,7 +184,7 @@ auto draw() -> void
 	glUseProgram(gProgram);
 	glBindVertexArray(gVAO);
 	//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, 8);
+	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, 8);
 }
 
 auto main() -> int

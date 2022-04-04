@@ -10,9 +10,9 @@ const float PI = 3.14159265358979f;
 
 // Cube
 float vertices[] = {
-	// Pos			        // Color
-	-0.5f, -0.5f, -0.5f, 	0.0f, 0.0f, 0.0f,
-	-0.5f, -0.5f, +0.5f, 	0.0f, 0.0f, 1.0f,
+	// Pos                  // Color
+	-0.5f, -0.5f, -0.5f,    0.0f, 0.0f, 0.0f,
+	-0.5f, -0.5f, +0.5f,    0.0f, 0.0f, 1.0f,
 	-0.5f, +0.5f, -0.5f,    0.0f, 1.0f, 0.0f,
 	-0.5f, +0.5f, +0.5f,    0.0f, 1.0f, 1.0f,
 	+0.5f, -0.5f, -0.5f,    1.0f, 0.0f, 0.0f,
@@ -82,21 +82,21 @@ GLuint gCubeQuery[400] = {0};
 auto init() -> bool
 {
 	//std::cout << "init " << gWidth << " " << gHeight << std::endl;
-    auto vertexShader = GL_CHECK_RETURN(glCreateShader(GL_VERTEX_SHADER));
-    GL_CHECK(glShaderSource(vertexShader, 1, &vertexShaderSource, NULL));
-    GL_CHECK(glCompileShader(vertexShader));
+	auto vertexShader = GL_CHECK_RETURN(glCreateShader(GL_VERTEX_SHADER));
+	GL_CHECK(glShaderSource(vertexShader, 1, &vertexShaderSource, NULL));
+	GL_CHECK(glCompileShader(vertexShader));
 
-    auto fragmentShader = GL_CHECK_RETURN(glCreateShader(GL_FRAGMENT_SHADER));
-    GL_CHECK(glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL));
-    GL_CHECK(glCompileShader(fragmentShader));
+	auto fragmentShader = GL_CHECK_RETURN(glCreateShader(GL_FRAGMENT_SHADER));
+	GL_CHECK(glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL));
+	GL_CHECK(glCompileShader(fragmentShader));
 
-    gProgram = GL_CHECK_RETURN(glCreateProgram());
-    GL_CHECK(glAttachShader(gProgram, vertexShader));
-    GL_CHECK(glAttachShader(gProgram, fragmentShader));
-    GL_CHECK(glLinkProgram(gProgram));
+	gProgram = GL_CHECK_RETURN(glCreateProgram());
+	GL_CHECK(glAttachShader(gProgram, vertexShader));
+	GL_CHECK(glAttachShader(gProgram, fragmentShader));
+	GL_CHECK(glLinkProgram(gProgram));
 
-    GL_CHECK(glDeleteShader(vertexShader));
-    GL_CHECK(glDeleteShader(fragmentShader));
+	GL_CHECK(glDeleteShader(vertexShader));
+	GL_CHECK(glDeleteShader(fragmentShader));
 
 	glGenVertexArrays(1, &gVAO);
 	glBindVertexArray(gVAO);
@@ -115,7 +115,7 @@ auto init() -> bool
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    glGenQueries(400, gCubeQuery);
+	glGenQueries(400, gCubeQuery);
 
 	size();
 
@@ -134,7 +134,7 @@ void size()
 
 	mat4 world = mat4::identity;
 	//mat4 view = mat4::lookAt(vec3(0.0f, 6.0, 20.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
-    mat4 view = mat4::lookAt(vec3(0.0f, 0.0, 20.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
+	mat4 view = mat4::lookAt(vec3(0.0f, 0.0, 20.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 	glUniformMatrix4fv(gViewLoc, 1, false, view.m);
 	mat4 proj = mat4::perspective(45.0f * (PI/180.0f), static_cast<float>(gWidth)/gHeight, 0.1f, 100.0f);
 	glUniformMatrix4fv(projLoc, 1, false, proj.m);
@@ -157,47 +157,47 @@ auto draw() -> void
 
 	glUseProgram(gProgram);
 
-    mat4 view1 = mat4::lookAt(vec3(0.0f, 0.0, 20.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
+	mat4 view1 = mat4::lookAt(vec3(0.0f, 0.0, 20.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 	glUniformMatrix4fv(gViewLoc, 1, false, view1.m);
 	glBindVertexArray(gVAO);
 
-    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-    glDisable(GL_BLEND);
-    for(int i=0; i<20; i++)
-    {
-        for(int j=0; j<20; j++)
-        {
-            mat4 world = mat4::scale(0.6f, 0.6f, 0.6f) * mat4::rotate(0.0f, 1.0f, 0.0f, gAngle * (PI/180.0f)) * mat4::translate(static_cast<float>(j - 10), 0.0f, static_cast<float>(10 - i));
-	        glUniformMatrix4fv(gWorldLoc, 1, false, world.m);
-            GL_CHECK(glBeginQuery(GL_ANY_SAMPLES_PASSED, gCubeQuery[i*20 + j]));
-	            glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-            GL_CHECK(glEndQuery(GL_ANY_SAMPLES_PASSED));
-        }
-    }
+	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+	glDisable(GL_BLEND);
+	for(int i=0; i<20; i++)
+	{
+		for(int j=0; j<20; j++)
+		{
+			mat4 world = mat4::scale(0.6f, 0.6f, 0.6f) * mat4::rotate(0.0f, 1.0f, 0.0f, gAngle * (PI/180.0f)) * mat4::translate(static_cast<float>(j - 10), 0.0f, static_cast<float>(10 - i));
+			glUniformMatrix4fv(gWorldLoc, 1, false, world.m);
+			GL_CHECK(glBeginQuery(GL_ANY_SAMPLES_PASSED, gCubeQuery[i*20 + j]));
+				glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+			GL_CHECK(glEndQuery(GL_ANY_SAMPLES_PASSED));
+		}
+	}
 
-    mat4 view2 = mat4::lookAt(vec3(0.0f, 6.0, 20.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
+	mat4 view2 = mat4::lookAt(vec3(0.0f, 6.0, 20.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 	glUniformMatrix4fv(gViewLoc, 1, false, view2.m);
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-    for(int i=0; i<20; i++)
-    {
-        for(int j=0; j<20; j++)
-        {
-            GLint available;
-            do {
-                glGetQueryObjectiv(gCubeQuery[i*20 + j], GL_QUERY_RESULT_AVAILABLE, &available);
-            } while (!available);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	for(int i=0; i<20; i++)
+	{
+		for(int j=0; j<20; j++)
+		{
+			GLint available;
+			do {
+				glGetQueryObjectiv(gCubeQuery[i*20 + j], GL_QUERY_RESULT_AVAILABLE, &available);
+			} while (!available);
 
-            GLuint queryResult = GL_FALSE;
-            GL_CHECK(glGetQueryObjectuiv(gCubeQuery[i*20 + j], GL_QUERY_RESULT, &queryResult));
-            if (queryResult == GL_FALSE) continue;
+			GLuint queryResult = GL_FALSE;
+			GL_CHECK(glGetQueryObjectuiv(gCubeQuery[i*20 + j], GL_QUERY_RESULT, &queryResult));
+			if (queryResult == GL_FALSE) continue;
 
-            mat4 world = mat4::scale(0.6f, 0.6f, 0.6f) * mat4::rotate(0.0f, 1.0f, 0.0f, gAngle * (PI/180.0f)) * mat4::translate(static_cast<float>(j - 10), 0.0f, static_cast<float>(10 - i));
-	        glUniformMatrix4fv(gWorldLoc, 1, false, world.m);
-	        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-        }
-    }
+			mat4 world = mat4::scale(0.6f, 0.6f, 0.6f) * mat4::rotate(0.0f, 1.0f, 0.0f, gAngle * (PI/180.0f)) * mat4::translate(static_cast<float>(j - 10), 0.0f, static_cast<float>(10 - i));
+			glUniformMatrix4fv(gWorldLoc, 1, false, world.m);
+			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+		}
+	}
 }
 
 auto main() -> int

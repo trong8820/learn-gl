@@ -3,19 +3,19 @@
 
 struct vec2
 {
-    float x{};
-    float y{};
+	float x{};
+	float y{};
 
-    // -- Implicit basic constructors --
-    constexpr vec2() = default;
-    constexpr vec2(vec2 const& v) = default;
+	// -- Implicit basic constructors --
+	constexpr vec2() = default;
+	constexpr vec2(vec2 const& v) = default;
 
-    // -- Explicit basic constructors --
-    constexpr vec2(float x, float y);
+	// -- Explicit basic constructors --
+	constexpr vec2(float x, float y);
 
-    static float dot(vec2 const& lhs, vec2 const& rhs);
+	static float dot(vec2 const& lhs, vec2 const& rhs);
 
-    vec2 normalize();
+	vec2 normalize();
 };
 
 constexpr vec2 operator+(vec2 const& v);

@@ -1,4 +1,4 @@
-﻿# CMakeLists.txt : Top-level CMake project file, do global configuration
+# CMakeLists.txt : Top-level CMake project file, do global configuration
 # and include sub-projects here.
 #
 cmake_minimum_required (VERSION 3.16)
@@ -45,26 +45,27 @@ endif()
 
 # 3rdparty include
 include_directories (
-	${CMAKE_SOURCE_DIR}/3rdparty/glad-0.1.34/include
-	${CMAKE_SOURCE_DIR}/3rdparty/glfw-3.3.4/include
+	${CMAKE_SOURCE_DIR}/3rdparty/glad-0.1.35/include
+	${CMAKE_SOURCE_DIR}/3rdparty/glfw-3.3.6/include
 	#${CMAKE_SOURCE_DIR}/3rdparty/spirv/include
 )
 
 # 3rdparty sources
-file(GLOB_RECURSE 3RDPARTY_SOURCE_FILES
-	${CMAKE_SOURCE_DIR}/3rdparty/*.c
-	${CMAKE_SOURCE_DIR}/3rdparty/*.cc
-	${CMAKE_SOURCE_DIR}/3rdparty/*.cpp
-)
+# file(GLOB_RECURSE 3RDPARTY_SOURCE_FILES
+# 	${CMAKE_SOURCE_DIR}/3rdparty/*.c
+#	${CMAKE_SOURCE_DIR}/3rdparty/*.cc
+#	${CMAKE_SOURCE_DIR}/3rdparty/*.cpp
+#)
 
 # 3rdparty libs
 link_directories(
-	${CMAKE_SOURCE_DIR}/3rdparty/glfw-3.3.4/lib/${PLATFORM_FOLDER}
+	${CMAKE_SOURCE_DIR}/3rdparty/glad-0.1.35/lib/${PLATFORM_FOLDER}
+	${CMAKE_SOURCE_DIR}/3rdparty/glfw-3.3.6/lib/${PLATFORM_FOLDER}
 	#${CMAKE_SOURCE_DIR}/3rdparty/spirv/lib/${PLATFORM_FOLDER}
 )
 
 # 3rdparty link
-link_libraries(glfw3)
+link_libraries(glad glfw3)
 #link_libraries(glfw3 spirv-cross-core spirv-cross-glsl)
 
 if (APPLE)

@@ -37,7 +37,7 @@ out float outValue;
 
 void main()
 {
-    outValue = sqrt(inValue);
+	outValue = sqrt(inValue);
 }
 )";
 
@@ -85,55 +85,55 @@ GLuint gTBO;
 
 auto init() -> bool
 {
-    {
-        auto vertexShader = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vertexShader, 1, &vertexShaderFeedbackSource, nullptr);
-        glCompileShader(vertexShader);
+	{
+		auto vertexShader = glCreateShader(GL_VERTEX_SHADER);
+		glShaderSource(vertexShader, 1, &vertexShaderFeedbackSource, nullptr);
+		glCompileShader(vertexShader);
 
-        gFeedbackProgram = glCreateProgram();
-        glAttachShader(gFeedbackProgram, vertexShader);
-        const GLchar* feedbackVaryings[] = { "outValue" };
-        glTransformFeedbackVaryings(gFeedbackProgram, 1, feedbackVaryings, GL_INTERLEAVED_ATTRIBS);
-        glLinkProgram(gFeedbackProgram);
+		gFeedbackProgram = glCreateProgram();
+		glAttachShader(gFeedbackProgram, vertexShader);
+		const GLchar* feedbackVaryings[] = { "outValue" };
+		glTransformFeedbackVaryings(gFeedbackProgram, 1, feedbackVaryings, GL_INTERLEAVED_ATTRIBS);
+		glLinkProgram(gFeedbackProgram);
 
-        glDeleteShader(vertexShader);
-    }
+		glDeleteShader(vertexShader);
+	}
 
-    {
-        auto vertexShader = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
-        glCompileShader(vertexShader);
+	{
+		auto vertexShader = glCreateShader(GL_VERTEX_SHADER);
+		glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
+		glCompileShader(vertexShader);
 
-        auto fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
-        glCompileShader(fragmentShader);
+		auto fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+		glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
+		glCompileShader(fragmentShader);
 
-        gProgram = glCreateProgram();
-        glAttachShader(gProgram, vertexShader);
-        glAttachShader(gProgram, fragmentShader);
-        glLinkProgram(gProgram);
+		gProgram = glCreateProgram();
+		glAttachShader(gProgram, vertexShader);
+		glAttachShader(gProgram, fragmentShader);
+		glLinkProgram(gProgram);
 
-        glDeleteShader(vertexShader);
-        glDeleteShader(fragmentShader);
-    }
+		glDeleteShader(vertexShader);
+		glDeleteShader(fragmentShader);
+	}
 
 	glGenBuffers(1, &gFeedbackVAO);
 	glGenVertexArrays(1, &gFeedbackVAO);
-    glBindVertexArray(gFeedbackVAO);
+	glBindVertexArray(gFeedbackVAO);
 
 	GLuint VBO;
 	glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(data), data, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(data), data, GL_STATIC_DRAW);
 
-    glUseProgram(gFeedbackProgram);
-    GLint inputAttrib = glGetAttribLocation(gFeedbackProgram, "inValue");
-    glEnableVertexAttribArray(inputAttrib);
-    glVertexAttribPointer(inputAttrib, 1, GL_FLOAT, GL_FALSE, 0, 0);
+	glUseProgram(gFeedbackProgram);
+	GLint inputAttrib = glGetAttribLocation(gFeedbackProgram, "inValue");
+	glEnableVertexAttribArray(inputAttrib);
+	glVertexAttribPointer(inputAttrib, 1, GL_FLOAT, GL_FALSE, 0, 0);
 
-    glGenBuffers(1, &gTBO);
-    glBindBuffer(GL_ARRAY_BUFFER, gTBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(data), nullptr, GL_STATIC_READ);
+	glGenBuffers(1, &gTBO);
+	glBindBuffer(GL_ARRAY_BUFFER, gTBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(data), nullptr, GL_STATIC_READ);
 	glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, gTBO);
 
 	// Pass Matrix see: https://learnopengl.com/Advanced-OpenGL/Instancing
@@ -229,15 +229,15 @@ auto draw() -> void
 
 	glUseProgram(gFeedbackProgram);
 	glBindVertexArray(gFeedbackVAO);
-    glEnable(GL_RASTERIZER_DISCARD);
-        glBeginTransformFeedback(GL_POINTS);
-        	glDrawArrays(GL_POINTS, 0, 5);
+	glEnable(GL_RASTERIZER_DISCARD);
+		glBeginTransformFeedback(GL_POINTS);
+			glDrawArrays(GL_POINTS, 0, 5);
 		glEndTransformFeedback();
-    glDisable(GL_RASTERIZER_DISCARD);
+	glDisable(GL_RASTERIZER_DISCARD);
 
-    GLfloat feedback[5];
-    glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, sizeof(feedback), feedback);
-    printf("%f %f %f %f %f\n", feedback[0], feedback[1], feedback[2], feedback[3], feedback[4]);
+	GLfloat feedback[5];
+	glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, sizeof(feedback), feedback);
+	printf("%f %f %f %f %f\n", feedback[0], feedback[1], feedback[2], feedback[3], feedback[4]);
 
 
 	glUseProgram(gProgram);

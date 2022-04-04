@@ -35,7 +35,7 @@ int frameNum = 0;
 
 auto init() -> bool
 {
-    auto vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	auto vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
 	glCompileShader(vertexShader);
 
@@ -51,71 +51,71 @@ auto init() -> bool
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
 
-    glGenVertexArrays(3, gVAO);
-    glGenBuffers(3, gVBO);
-    for(size_t i=0; i<3; i++)
-    {
-        glBindVertexArray(gVAO[i]);
-            glBindBuffer(GL_ARRAY_BUFFER, gVBO[i]);
-                glBufferData(GL_ARRAY_BUFFER, sizeof(gVertices), NULL, GL_DYNAMIC_DRAW);
-                glEnableVertexAttribArray(0);
-                    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (GLvoid*)0);
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
-    }
+	glGenVertexArrays(3, gVAO);
+	glGenBuffers(3, gVBO);
+	for(size_t i=0; i<3; i++)
+	{
+		glBindVertexArray(gVAO[i]);
+			glBindBuffer(GL_ARRAY_BUFFER, gVBO[i]);
+				glBufferData(GL_ARRAY_BUFFER, sizeof(gVertices), NULL, GL_DYNAMIC_DRAW);
+				glEnableVertexAttribArray(0);
+					glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (GLvoid*)0);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+	}
 
-    for (size_t i = 0; i < 3; i++)
-    {
-        gFences[i] = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-    }
+	for (size_t i = 0; i < 3; i++)
+	{
+		gFences[i] = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+	}
 
-    return true;
+	return true;
 }
 
 float scale = 1.0f;
 
 auto update() -> void
 {
-    scale += 0.01f;
-    if (scale > 20.0f) scale = 1.0f;
+	scale += 0.01f;
+	if (scale > 20.0f) scale = 1.0f;
 
-    for (size_t i = 0; i < 100; i++)
-    {
-        float x = (static_cast<int>(i) - 50)*0.01f;
-        gVertices[2*i + 0] = x;
-        gVertices[2*i + 1] = sin(x*scale);
-    }
+	for (size_t i = 0; i < 100; i++)
+	{
+		float x = (static_cast<int>(i) - 50)*0.01f;
+		gVertices[2*i + 0] = x;
+		gVertices[2*i + 1] = sin(x*scale);
+	}
 }
 
 auto draw() -> void
 {
-    int bufferNum = frameNum++ % 3;
+	int bufferNum = frameNum++ % 3;
 
-    glClearColor(0.0f, 0.2f, 0.2f, 1.0f);
+	glClearColor(0.0f, 0.2f, 0.2f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	glUseProgram(gProgram);
 
-    GLenum result = glClientWaitSync(gFences[bufferNum], 0, GL_TIMEOUT_IGNORED);
-    if (result == GL_TIMEOUT_EXPIRED || result == GL_WAIT_FAILED)
-    {
-        std::cout << "Client wait sync failed!" << std::endl;
-        glDeleteSync(gFences[bufferNum]);
-        gFences[bufferNum] = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-        return;
-    }
-    glDeleteSync(gFences[bufferNum]);
+	GLenum result = glClientWaitSync(gFences[bufferNum], 0, GL_TIMEOUT_IGNORED);
+	if (result == GL_TIMEOUT_EXPIRED || result == GL_WAIT_FAILED)
+	{
+		std::cout << "Client wait sync failed!" << std::endl;
+		glDeleteSync(gFences[bufferNum]);
+		gFences[bufferNum] = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+		return;
+	}
+	glDeleteSync(gFences[bufferNum]);
 
-    glBindVertexArray(gVAO[bufferNum]);   
-        glBindBuffer(GL_ARRAY_BUFFER, gVBO[bufferNum]);
-            void* ptr = glMapBufferRange(GL_ARRAY_BUFFER, 0*sizeof(float), 200*sizeof(float), GL_MAP_WRITE_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
-            std::memcpy(ptr, gVertices, 200*sizeof(float));
-            glUnmapBuffer(GL_ARRAY_BUFFER);
-        glBindBuffer(GL_ARRAY_BUFFER, 0); 
+	glBindVertexArray(gVAO[bufferNum]);
+		glBindBuffer(GL_ARRAY_BUFFER, gVBO[bufferNum]);
+			void* ptr = glMapBufferRange(GL_ARRAY_BUFFER, 0*sizeof(float), 200*sizeof(float), GL_MAP_WRITE_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
+			std::memcpy(ptr, gVertices, 200*sizeof(float));
+			glUnmapBuffer(GL_ARRAY_BUFFER);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    glDrawArrays(GL_LINE_STRIP, 0, 100);
+	glDrawArrays(GL_LINE_STRIP, 0, 100);
 
-    gFences[bufferNum] = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+	gFences[bufferNum] = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
 }
 
 auto main() -> int

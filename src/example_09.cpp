@@ -42,10 +42,10 @@ void main()
 	vUV = aUV;
 
 	mat3 normalMatrix = transpose(inverse(mat3(world)));
-    vec3 N = normalize(normalMatrix * aNormal);
-    vec3 T = normalize(normalMatrix * aTangent);
+	vec3 N = normalize(normalMatrix * aNormal);
+	vec3 T = normalize(normalMatrix * aTangent);
 	T = normalize(T - dot(T, N) * N);
-    vec3 B = cross(N, T);
+	vec3 B = cross(N, T);
 
 	mat3 TBN = transpose(mat3(T, B, N));
 	vTangentLightPos = TBN * lightPos;

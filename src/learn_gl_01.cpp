@@ -1,4 +1,4 @@
-﻿#include "entry.h"
+#include "entry.h"
 
 float vertices[] = {
 	// Pos			// Color

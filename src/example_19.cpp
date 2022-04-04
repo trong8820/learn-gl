@@ -44,10 +44,10 @@ float sdTorus( vec3 p, vec2 t )
 
 float cubeSDF(vec3 p, vec3 b)
 {
-    vec3 d = abs(p) - b;
-    float insideDistance = min(max(d.x, max(d.y, d.z)), 0.0);
-    float outsideDistance = length(max(d, 0.0));
-    return insideDistance + outsideDistance;
+	vec3 d = abs(p) - b;
+	float insideDistance = min(max(d.x, max(d.y, d.z)), 0.0);
+	float outsideDistance = length(max(d, 0.0));
+	return insideDistance + outsideDistance;
 }
 
 float sdRoundBox( vec3 p, vec3 b, float r )
@@ -56,52 +56,52 @@ float sdRoundBox( vec3 p, vec3 b, float r )
   return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0) - r;
 }
 
-float sceneSDF(vec3 samplePoint) 
+float sceneSDF(vec3 samplePoint)
 {
-    float d = cubeSDF(samplePoint + vec3(-4.2, 0.0, 0.0), vec3(1.0, 1.0, 1.0));
-    d = min(d, sdTorus(samplePoint, vec2(1.5, 0.5)));
-    d = min(d, sdRoundBox(samplePoint + vec3(4.2, 0.0, 0.0), vec3(1.0, 1.0, 1.0), 0.5));
-    return d;
+	float d = cubeSDF(samplePoint + vec3(-4.2, 0.0, 0.0), vec3(1.0, 1.0, 1.0));
+	d = min(d, sdTorus(samplePoint, vec2(1.5, 0.5)));
+	d = min(d, sdRoundBox(samplePoint + vec3(4.2, 0.0, 0.0), vec3(1.0, 1.0, 1.0), 0.5));
+	return d;
 }
 
-float shortestDistanceToSurface(vec3 marchingDirection, float start, float end) 
+float shortestDistanceToSurface(vec3 marchingDirection, float start, float end)
 {
-    float depth = start;
-    for (int i = 0; i < MAX_MARCHING_STEPS; i++) {
-        float dist = sceneSDF(eyePos + depth * marchingDirection);
-        if (dist < EPSILON) {
+	float depth = start;
+	for (int i = 0; i < MAX_MARCHING_STEPS; i++) {
+		float dist = sceneSDF(eyePos + depth * marchingDirection);
+		if (dist < EPSILON) {
 			return depth;
-        }
-        depth += dist;
-        if (depth >= end) {
-            return end;
-        }
-    }
-    return end;
+		}
+		depth += dist;
+		if (depth >= end) {
+			return end;
+		}
+	}
+	return end;
 }
 
 vec3 rayDirection(float fieldOfView, vec2 size, vec2 fragCoord)
 {
-    vec2 xy = fragCoord - size / 2.0;
-    float z = size.y / tan(radians(fieldOfView) / 2.0);
-    return normalize(vec3(xy, -z));
+	vec2 xy = fragCoord - size / 2.0;
+	float z = size.y / tan(radians(fieldOfView) / 2.0);
+	return normalize(vec3(xy, -z));
 }
 
 void main()
 {
-    vec4 viewPos = vec4(-gl_FragCoord.xy + resolution/2.0, resolution.y / 2.0 / tan(radians(45.0)), 1.0); // 45.0 FOV
-    vec4 worldPos = inverse(view) * viewPos;
+	vec4 viewPos = vec4(-gl_FragCoord.xy + resolution/2.0, resolution.y / 2.0 / tan(radians(45.0)), 1.0); // 45.0 FOV
+	vec4 worldPos = inverse(view) * viewPos;
 
-    vec3 dir = normalize(eyePos - worldPos.xyz);
+	vec3 dir = normalize(eyePos - worldPos.xyz);
 
-    float dist = shortestDistanceToSurface(dir, MIN_DIST, MAX_DIST);
-    if (dist > MAX_DIST - EPSILON) 
-    {
-        FragColor = vec4(0.0, 0.2, 0.2, 0.0);
-        return;
-    }
+	float dist = shortestDistanceToSurface(dir, MIN_DIST, MAX_DIST);
+	if (dist > MAX_DIST - EPSILON)
+	{
+		FragColor = vec4(0.0, 0.2, 0.2, 0.0);
+		return;
+	}
 
-    FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+	FragColor = vec4(0.0, 1.0, 0.0, 1.0);
 }
 )";
 
@@ -123,12 +123,12 @@ float gRotY;
 
 auto init() -> bool
 {
-    //std::cout << "init " << gWidth << " " << gHeight << std::endl;
-    {
-        auto vertexShader = GL_CHECK_RETURN(glCreateShader(GL_VERTEX_SHADER));
-        GL_CHECK(glShaderSource(vertexShader, 1, &vertexShaderSource, NULL));
-        GL_CHECK(glCompileShader(vertexShader));
-        {
+	//std::cout << "init " << gWidth << " " << gHeight << std::endl;
+	{
+		auto vertexShader = GL_CHECK_RETURN(glCreateShader(GL_VERTEX_SHADER));
+		GL_CHECK(glShaderSource(vertexShader, 1, &vertexShaderSource, NULL));
+		GL_CHECK(glCompileShader(vertexShader));
+		{
 			GLint success;
 			GL_CHECK(glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success));
 			if(!success)
@@ -143,10 +143,10 @@ auto init() -> bool
 			}
 		}
 
-        auto fragmentShader = GL_CHECK_RETURN(glCreateShader(GL_FRAGMENT_SHADER));
-        GL_CHECK(glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL));
-        GL_CHECK(glCompileShader(fragmentShader));
-        {
+		auto fragmentShader = GL_CHECK_RETURN(glCreateShader(GL_FRAGMENT_SHADER));
+		GL_CHECK(glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL));
+		GL_CHECK(glCompileShader(fragmentShader));
+		{
 			GLint success;
 			GL_CHECK(glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success));
 			if(!success)
@@ -161,36 +161,36 @@ auto init() -> bool
 			}
 		}
 
-        gProgram = GL_CHECK_RETURN(glCreateProgram());
-        GL_CHECK(glAttachShader(gProgram, vertexShader));
-        GL_CHECK(glAttachShader(gProgram, fragmentShader));
-        GL_CHECK(glLinkProgram(gProgram));
+		gProgram = GL_CHECK_RETURN(glCreateProgram());
+		GL_CHECK(glAttachShader(gProgram, vertexShader));
+		GL_CHECK(glAttachShader(gProgram, fragmentShader));
+		GL_CHECK(glLinkProgram(gProgram));
 
-        GL_CHECK(glDeleteShader(vertexShader));
-        GL_CHECK(glDeleteShader(fragmentShader));
-    }
+		GL_CHECK(glDeleteShader(vertexShader));
+		GL_CHECK(glDeleteShader(fragmentShader));
+	}
 
-    GLuint VAO;
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
+	GLuint VAO;
+	glGenVertexArrays(1, &VAO);
+	glBindVertexArray(VAO);
 
-    glUseProgram(gProgram);
+	glUseProgram(gProgram);
 	gViewLoc = glGetUniformLocation(gProgram, "view");
-    gEyePosLoc = glGetUniformLocation(gProgram, "eyePos");
-    gResolutionLoc = glGetUniformLocation(gProgram, "resolution");
+	gEyePosLoc = glGetUniformLocation(gProgram, "eyePos");
+	gResolutionLoc = glGetUniformLocation(gProgram, "resolution");
 
-    on_size();
+	on_size();
 
-    return true;
+	return true;
 }
 
 auto on_size() -> void
 {
-    //std::cout << "size " << gWidth << " " << gHeight << std::endl;
-    glViewport(0, 0, gWidth, gHeight);
+	//std::cout << "size " << gWidth << " " << gHeight << std::endl;
+	glViewport(0, 0, gWidth, gHeight);
 
-    glUseProgram(gProgram);
-    glUniform2f(gResolutionLoc, gWidth, gHeight);
+	glUseProgram(gProgram);
+	glUniform2f(gResolutionLoc, gWidth, gHeight);
 }
 
 auto on_key(int key, int action) -> void
@@ -200,7 +200,7 @@ auto on_key(int key, int action) -> void
 
 auto on_mouse(double xpos, double ypos) -> void
 {
-    int state = glfwGetMouseButton(g_pWindow, GLFW_MOUSE_BUTTON_LEFT);
+	int state = glfwGetMouseButton(g_pWindow, GLFW_MOUSE_BUTTON_LEFT);
 	if (state == GLFW_PRESS)
 	{
 		gTargetRotX += (xpos - gPrevPosX)*0.01f;
@@ -215,23 +215,23 @@ auto on_mouse(double xpos, double ypos) -> void
 
 auto update() -> void
 {
-    gRotX += 0.05 * (gTargetRotX - gRotX);
+	gRotX += 0.05 * (gTargetRotX - gRotX);
 	gRotY += 0.05 * (gTargetRotY - gRotY);
 
 	vec4 eyePos = mat4::rotate(0.0f, 1.0f, 0.0f, -gRotX) * mat4::rotate(1.0f, 0.0f, 0.0f, -gRotY) * vec4(0.0f, 0.0f, 7.0f, 0.0f);
-    gEyePos = vec3(eyePos.x, eyePos.y, eyePos.z);
+	gEyePos = vec3(eyePos.x, eyePos.y, eyePos.z);
 	gView = mat4::lookAt(gEyePos, vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 }
 
 auto draw() -> void
 {
-    glClearColor(0.0f, 0.2f, 0.2f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClearColor(0.0f, 0.2f, 0.2f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glUseProgram(gProgram);
-    glUniformMatrix4fv(gViewLoc, 1, false, gView.m);
-    glUniform3f(gEyePosLoc, gEyePos.x, gEyePos.y, gEyePos.z);
-    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	glUseProgram(gProgram);
+	glUniformMatrix4fv(gViewLoc, 1, false, gView.m);
+	glUniform3f(gEyePosLoc, gEyePos.x, gEyePos.y, gEyePos.z);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 }
 
 auto main() -> int

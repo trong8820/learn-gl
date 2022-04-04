@@ -140,7 +140,7 @@ void loadFace(GLenum target, const std::string& faceName)
 		}
 
 		ifs.close();
-    njDone();
+	njDone();
 }
 
 auto init() -> bool
@@ -200,7 +200,7 @@ auto init() -> bool
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	glGenTextures(1, &gTexture);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, gTexture);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, gTexture);
 
 	loadFace(GL_TEXTURE_CUBE_MAP_POSITIVE_X, "data/right.jpg");
 	loadFace(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, "data/left.jpg");
@@ -210,16 +210,16 @@ auto init() -> bool
 	loadFace(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, "data/back.jpg");
 
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
 	glUseProgram(gProgram);
 	gWorldLoc = glGetUniformLocation(gProgram, "world");
 	gViewLoc = glGetUniformLocation(gProgram, "view");
 
-	glUseProgram(gSkyboxProgram);		
+	glUseProgram(gSkyboxProgram);
 	gSkyboxViewLoc = glGetUniformLocation(gSkyboxProgram, "view");
 
 	on_size();
@@ -234,7 +234,7 @@ auto init() -> bool
 void on_size()
 {
 	//std::cout << "size " << gWidth << " " << gHeight << std::endl;
-	
+
 	glUseProgram(gProgram);
 	GLint viewLoc = glGetUniformLocation(gProgram, "view");
 	GLint projLoc = glGetUniformLocation(gProgram, "proj");
@@ -283,11 +283,11 @@ auto draw() -> void
 
 	glDepthFunc(GL_LEQUAL);
 	glUseProgram(gSkyboxProgram);
-	float m[16] = 
+	float m[16] =
 	{
-		view.m[0], view.m[1], view.m[2], 0.0f, 
-		view.m[4], view.m[5], view.m[6], 0.0f, 
-		view.m[8], view.m[9], view.m[10], 0.0f, 
+		view.m[0], view.m[1], view.m[2], 0.0f,
+		view.m[4], view.m[5], view.m[6], 0.0f,
+		view.m[8], view.m[9], view.m[10], 0.0f,
 		0.0f, 0.0f, 0.0f, 1.0f
 	};
 

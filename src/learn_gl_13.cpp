@@ -41,7 +41,7 @@ out vec2 tcTexCoord;
 
 void main()
 {
-    tcPos = vec4(aPos.x, aPos.y, 0.0, 1.0);
+	tcPos = vec4(aPos.x, aPos.y, 0.0, 1.0);
 	tcColor = aColor;
 	tcTexCoord = aTexCoord;
 }
@@ -62,15 +62,15 @@ out vec2 teTexCoord[];
 
 void main()
 {
-    tePos[gl_InvocationID] = tcPos[gl_InvocationID];
-    teColor[gl_InvocationID] = tcColor[gl_InvocationID];
-    teTexCoord[gl_InvocationID] = tcTexCoord[gl_InvocationID];
+	tePos[gl_InvocationID] = tcPos[gl_InvocationID];
+	teColor[gl_InvocationID] = tcColor[gl_InvocationID];
+	teTexCoord[gl_InvocationID] = tcTexCoord[gl_InvocationID];
 
-    gl_TessLevelOuter[0] = 3;
-    gl_TessLevelOuter[1] = 3;
-    gl_TessLevelOuter[2] = 3;
+	gl_TessLevelOuter[0] = 3;
+	gl_TessLevelOuter[1] = 3;
+	gl_TessLevelOuter[2] = 3;
 
-    gl_TessLevelInner[0] = 3;
+	gl_TessLevelInner[0] = 3;
 }
 )";
 
@@ -88,15 +88,15 @@ out vec2 vTexCoord;
 
 vec3 lerp3D(vec3 v0, vec3 v1, vec3 v2)
 {
-    return vec3(gl_TessCoord.x) * v0 + vec3(gl_TessCoord.y) * v1 + vec3(gl_TessCoord.z) * v2;
+	return vec3(gl_TessCoord.x) * v0 + vec3(gl_TessCoord.y) * v1 + vec3(gl_TessCoord.z) * v2;
 }
 
 void main()
 {
-    vColor = teColor[0];
-    vTexCoord = teTexCoord[0];
-    vec3 pos = lerp3D(tePos[0].xyz, tePos[1].xyz, tePos[2].xyz);
-    gl_Position = vec4(pos.x, pos.y, 0.0, 1.0);
+	vColor = teColor[0];
+	vTexCoord = teTexCoord[0];
+	vec3 pos = lerp3D(tePos[0].xyz, tePos[1].xyz, tePos[2].xyz);
+	gl_Position = vec4(pos.x, pos.y, 0.0, 1.0);
 }
 )";
 
@@ -113,8 +113,8 @@ out vec4 FragColor;
 void main()
 {
 	//FragColor = vColor * texture(texture0, vTexCoord);
-    //FragColor = vColor;
-    FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+	//FragColor = vColor;
+	FragColor = vec4(0.0, 1.0, 0.0, 1.0);
 }
 )";
 
@@ -128,11 +128,11 @@ auto init() -> bool
 	glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
 	glCompileShader(vertexShader);
 
-    auto tcShader = glCreateShader(GL_TESS_CONTROL_SHADER);
+	auto tcShader = glCreateShader(GL_TESS_CONTROL_SHADER);
 	glShaderSource(tcShader, 1, &tcShaderSource, nullptr);
 	glCompileShader(tcShader);
 
-    auto teShader = glCreateShader(GL_TESS_EVALUATION_SHADER);
+	auto teShader = glCreateShader(GL_TESS_EVALUATION_SHADER);
 	glShaderSource(teShader, 1, &teShaderSource, nullptr);
 	glCompileShader(teShader);
 
@@ -142,8 +142,8 @@ auto init() -> bool
 
 	gProgram = glCreateProgram();
 	glAttachShader(gProgram, vertexShader);
-    glAttachShader(gProgram, tcShader);
-    glAttachShader(gProgram, teShader);
+	glAttachShader(gProgram, tcShader);
+	glAttachShader(gProgram, teShader);
 	glAttachShader(gProgram, fragmentShader);
 	glLinkProgram(gProgram);
 

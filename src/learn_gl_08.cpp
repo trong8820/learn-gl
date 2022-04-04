@@ -68,37 +68,37 @@ GLuint gTexture;
 
 auto init() -> bool
 {
-    std::ifstream ifs("data/basic.vert.spv", std::ios::binary | std::ios::ate);
-    std::streamsize size = ifs.tellg();
-    ifs.seekg(0, std::ios::beg);
+	std::ifstream ifs("data/basic.vert.spv", std::ios::binary | std::ios::ate);
+	std::streamsize size = ifs.tellg();
+	ifs.seekg(0, std::ios::beg);
 
-    std::vector<char> buffer(size);
-    if (ifs.read(buffer.data(), size))
-    {
-        std::vector<uint32_t> spirv_binary(buffer.size() / sizeof(uint32_t));
-        memcpy(spirv_binary.data(), buffer.data(), buffer.size());
-        spirv_cross::CompilerGLSL glsl(std::move(spirv_binary));
+	std::vector<char> buffer(size);
+	if (ifs.read(buffer.data(), size))
+	{
+		std::vector<uint32_t> spirv_binary(buffer.size() / sizeof(uint32_t));
+		memcpy(spirv_binary.data(), buffer.data(), buffer.size());
+		spirv_cross::CompilerGLSL glsl(std::move(spirv_binary));
 
-        spirv_cross::ShaderResources resources = glsl.get_shader_resources();
+		spirv_cross::ShaderResources resources = glsl.get_shader_resources();
 
-        for (auto &resource : resources.stage_inputs)
-        {
-            unsigned set = glsl.get_decoration(resource.id, spv::DecorationDescriptorSet);
-		    unsigned binding = glsl.get_decoration(resource.id, spv::DecorationBinding);
-            unsigned location = glsl.get_decoration(resource.id, spv::DecorationLocation);
-            std::cout << resource.name << " " << set << " " << binding << " " << location << std::endl; 
-        }
+		for (auto &resource : resources.stage_inputs)
+		{
+			unsigned set = glsl.get_decoration(resource.id, spv::DecorationDescriptorSet);
+			unsigned binding = glsl.get_decoration(resource.id, spv::DecorationBinding);
+			unsigned location = glsl.get_decoration(resource.id, spv::DecorationLocation);
+			std::cout << resource.name << " " << set << " " << binding << " " << location << std::endl;
+		}
 
-        spirv_cross::CompilerGLSL::Options options;
-        options.version = 410;
-        options.es = false;
-        glsl.set_common_options(options);
+		spirv_cross::CompilerGLSL::Options options;
+		options.version = 410;
+		options.es = false;
+		glsl.set_common_options(options);
 
-        std::string source = glsl.compile();
-        std::cout << source << std::endl;
-    }
-    ifs.close();
-    
+		std::string source = glsl.compile();
+		std::cout << source << std::endl;
+	}
+	ifs.close();
+
 
 	auto vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
