@@ -46,8 +46,9 @@ https://www.khronos.org/files/opengl46-quick-reference-card.pdf
 |ID|Syntax|Description|
 |-|-|-|
 |1|```gl?```|Cài đặt, gỡ lỗi và truy vấn thông tin|
-|1|```gl?```|Draw điểm, đường ..., Draw với elements, Draw với Indirect|
-|1|```gl?```|Draw với Indirect sử dụng với uniform hoặc attributes|
+|1|```gl?```|Draw điểm, đường ..., Draw với elements|
+|1|```gl?```|Draw với Instancing sử dụng với uniform hoặc attributes|
+|1|```gl?```|Draw với Indirect|
 |1|```gl?```|Sử dụng Attrib, kết hợp hoặc tách rời|
 |1|```gl?```|Sử dụng đồng bộ, data, subdata, mapdata và sao chép copy subdata|
 |1|```gl?```|Draw sử dụng texture cùng với filter và wrap. MipMap tự động hoặc thủ công, cập nhật dữ kiệu texture, toàn bộ hoặc một phần chữ nhật|

@@ -207,12 +207,23 @@ auto init() -> bool
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 2, 2, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
+	on_size();
+
 	return true;
 }
 
-void size()
+auto on_size() -> void
 {
 	//std::cout << "size " << gWidth << " " << gHeight << std::endl;
+	glViewport(0, 0, gWidth, gHeight);
+}
+
+auto on_key(int key, int action) -> void
+{
+}
+
+auto on_mouse(double xpos, double ypos) -> void
+{
 }
 
 auto update() -> void
