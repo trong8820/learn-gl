@@ -117,12 +117,12 @@ auto init() -> bool
 
 	glGenQueries(400, gCubeQuery);
 
-	size();
+	on_size();
 
 	return 0;
 }
 
-void size()
+void on_size()
 {
 	//std::cout << "size " << gWidth << " " << gHeight << std::endl;
 	glViewport(0, 0, gWidth, gHeight);
@@ -142,6 +142,14 @@ void size()
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_DEPTH_TEST);
+}
+
+auto on_key(int key, int action) -> void
+{
+}
+
+auto on_mouse(double xpos, double ypos) -> void
+{
 }
 
 auto update() -> void

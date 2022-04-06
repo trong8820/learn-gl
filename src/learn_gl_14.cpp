@@ -200,7 +200,23 @@ auto init() -> bool
 
 	glDispatchCompute(512/16, 512/16, 1);
 
+	on_size();
+
 	return true;
+}
+
+void on_size()
+{
+	//std::cout << "size " << gWidth << " " << gHeight << std::endl;
+	glViewport(0, 0, gWidth, gHeight);
+}
+
+void on_key(int key, int action)
+{
+}
+
+void on_mouse(double xpos, double ypos)
+{
 }
 
 auto update() -> void

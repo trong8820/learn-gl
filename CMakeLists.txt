@@ -46,7 +46,7 @@ endif()
 # 3rdparty include
 include_directories (
 	${CMAKE_SOURCE_DIR}/3rdparty/glad-0.1.35/include
-	${CMAKE_SOURCE_DIR}/3rdparty/glfw-3.3.6/include
+	${CMAKE_SOURCE_DIR}/3rdparty/glfw-3.3.7/include
 	#${CMAKE_SOURCE_DIR}/3rdparty/spirv/include
 )
 
@@ -60,7 +60,7 @@ include_directories (
 # 3rdparty libs
 link_directories(
 	${CMAKE_SOURCE_DIR}/3rdparty/glad-0.1.35/lib/${PLATFORM_FOLDER}
-	${CMAKE_SOURCE_DIR}/3rdparty/glfw-3.3.6/lib/${PLATFORM_FOLDER}
+	${CMAKE_SOURCE_DIR}/3rdparty/glfw-3.3.7/lib/${PLATFORM_FOLDER}
 	#${CMAKE_SOURCE_DIR}/3rdparty/spirv/lib/${PLATFORM_FOLDER}
 )
 
@@ -103,7 +103,7 @@ set(SOURCE_FILES
 # add_executable(${PROJECT_NAME}_14 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_14.cpp)
 # add_executable(${PROJECT_NAME}_15 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_15.cpp)
 # add_executable(${PROJECT_NAME}_16 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_16.cpp)
-add_executable(${PROJECT_NAME}_17 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_17.cpp)
+# add_executable(${PROJECT_NAME}_17 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/learn_gl_17.cpp)
 
 # add_executable(example_01 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_01.cpp)
 # add_executable(example_02 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_02.cpp)
@@ -126,6 +126,7 @@ add_executable(${PROJECT_NAME}_17 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMA
 # add_executable(example_19 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_19.cpp)
 # add_executable(example_20 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_20.cpp)
 # add_executable(example_21 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_21.cpp)
+add_executable(example_22 ${3RDPARTY_SOURCE_FILES} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/src/example_22.cpp)
 
 # Data
 if (EXISTS ${CMAKE_SOURCE_DIR}/data)
