@@ -22,7 +22,7 @@ inline float vec3::dot(vec3 const& lhs, vec3 const& rhs)
 	return lhs.x*rhs.x + lhs.y*rhs.y + lhs.z*rhs.z;
 }
 
-inline vec3 vec3::normalize()
+inline vec3 vec3::normalize() const
 {
 	float length = sqrtf(x*x + y*y + z*z);
 	return vec3(x/length, y/length, z/length);
@@ -66,4 +66,9 @@ inline constexpr vec3 operator*(vec3 const& lhs, vec3 const& rhs)
 inline constexpr vec3 operator*(vec3 const& lhs, float const& rhs)
 {
 	return { lhs.x * rhs, lhs.y * rhs, lhs.z * rhs };
+}
+
+inline constexpr vec3 operator/(vec3 const& lhs, float const& rhs)
+{
+	return { lhs.x / rhs, lhs.y / rhs, lhs.z / rhs };
 }

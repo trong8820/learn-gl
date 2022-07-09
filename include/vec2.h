@@ -15,7 +15,7 @@ struct vec2
 
 	static float dot(vec2 const& lhs, vec2 const& rhs);
 
-	vec2 normalize();
+	vec2 normalize() const;
 };
 
 constexpr vec2 operator+(vec2 const& v);

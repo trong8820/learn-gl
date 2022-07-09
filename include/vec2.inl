@@ -12,7 +12,7 @@ inline float vec2::dot(vec2 const& lhs, vec2 const& rhs)
 	return lhs.x*rhs.x + lhs.y*rhs.y;
 }
 
-inline vec2 vec2::normalize()
+inline vec2 vec2::normalize() const
 {
 	float length = sqrtf(x*x + y*y);
 	return vec2(x/length, y/length);

@@ -184,6 +184,7 @@ auto draw() -> void
 	}
 
 	mat4 view2 = mat4::lookAt(vec3(0.0f, 6.0, 20.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
+	//mat4 view2 = mat4::lookAt(vec3(0.0f, 0.0, 20.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 	glUniformMatrix4fv(gViewLoc, 1, false, view2.m);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

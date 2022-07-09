@@ -17,7 +17,7 @@ struct vec3
 	static vec3 cross(vec3 const& lhs, vec3 const& rhs);
 	static float dot(vec3 const& lhs, vec3 const& rhs);
 
-	vec3 normalize();
+	vec3 normalize() const;
 };
 
 constexpr vec3 operator+(vec3 const& v);
@@ -29,6 +29,7 @@ constexpr vec3 operator-(vec3 const& lhs, vec3 const& rhs);
 constexpr vec3 operator*(vec3 const& lhs, vec3 const& rhs);
 
 constexpr vec3 operator*(vec3 const& lhs, float const& rhs);
+constexpr vec3 operator/(vec3 const& lhs, float const& rhs);
 
 #include "vec3.inl"
 

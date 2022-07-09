@@ -173,7 +173,24 @@ auto init() -> bool
 	GLuint loc = glGetUniformBlockIndex(gProgram, "GlobalOffset");
 	glUniformBlockBinding(gProgram, loc, 0);
 
+	on_size();
+
 	return true;
+}
+
+void on_size()
+{
+
+}
+
+void on_key(int key, int action)
+{
+
+}
+
+void on_mouse(double xpos, double ypos)
+{
+
 }
 
 auto update() -> void
